@@ -1,274 +1,154 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>اتمتها — مدرب المبيعات</title>
-  <style>
-    :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3250;
-      --accent: #6c63ff;
-      --accent2: #00d4aa;
-      --danger: #ff4d6d;
-      --warn: #ffa94d;
-      --text: #e8eaf6;
-      --text2: #9098c0;
-      --green: #40c97f;
-      --radius: 14px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>اتمتها — مدرب المبيعات</title>
+<style>
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3250;
+  --accent:#6c63ff;--accent2:#00d4aa;--danger:#ff4d6d;--warn:#ffa94d;
+  --text:#e8eaf6;--text2:#9098c0;--green:#40c97f;--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Noto Sans Arabic',Tahoma,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
 
-    /* ── SETUP ── */
-    #setup-screen {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 40px 20px; gap: 32px;
-    }
-    .setup-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 36px 40px;
-      width: 100%; max-width: 520px;
-      display: flex; flex-direction: column; gap: 24px;
-    }
-    .setup-card h2 { font-size: 1.5rem; color: var(--accent2); text-align: center; }
-    .setup-card p { font-size: 0.88rem; color: var(--text2); text-align: center; line-height: 1.7; }
-    .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-size: 0.9rem; color: var(--text2); }
-    .difficulty-row { display: flex; gap: 10px; }
-    .diff-btn {
-      flex: 1; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
-      border: 2px solid var(--border); background: var(--surface2); color: var(--text2);
-      cursor: pointer; font-family: inherit; transition: all 0.2s;
-    }
-    .diff-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.1); }
+/* SETUP */
+#setup-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:28px;}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px 36px;width:100%;max-width:540px;display:flex;flex-direction:column;gap:22px;}
+.setup-card h2{font-size:1.4rem;color:var(--accent2);text-align:center;}
+.setup-card p{font-size:0.85rem;color:var(--text2);text-align:center;line-height:1.7;}
+.field{display:flex;flex-direction:column;gap:8px;}
+.field label{font-size:0.85rem;color:var(--text2);}
+.difficulty-row{display:flex;gap:10px;}
+.diff-btn{flex:1;padding:11px;border-radius:10px;font-size:0.88rem;font-weight:600;border:2px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .2s;}
+.diff-btn.selected{border-color:var(--accent);color:var(--accent);background:rgba(108,99,255,.1);}
+.profile-card{border:2px solid var(--border);border-radius:12px;padding:13px 15px;cursor:pointer;background:var(--surface2);transition:all .2s;display:flex;flex-direction:column;gap:4px;}
+.profile-card:hover{border-color:var(--accent);}
+.profile-card.selected{border-color:var(--accent2);background:rgba(0,212,170,.07);}
+.profile-card .pname{font-weight:700;font-size:0.92rem;}
+.profile-card .pbio{font-size:0.79rem;color:var(--text2);line-height:1.5;}
+.profile-card .ppain{font-size:0.78rem;color:var(--warn);margin-top:2px;}
+button.primary{font-family:inherit;border-radius:8px;border:none;background:var(--accent);color:#fff;padding:13px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;}
+button.primary:hover{background:#5a52e0;}
 
-    select, button {
-      font-family: inherit; border-radius: 8px; border: 1px solid var(--border);
-      background: var(--surface2); color: var(--text); padding: 8px 14px;
-      cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
-    }
-    button:hover { border-color: var(--accent); }
-    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-    button.primary:hover { background: #5a52e0; }
-    button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+/* MAIN */
+#main-screen{flex:1;display:none;flex-direction:column;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap;}
+.logo{font-size:1.1rem;font-weight:700;color:var(--accent);}
+.logo span{color:var(--accent2);}
+.phase-indicator{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.phase-pip{width:28px;height:5px;border-radius:3px;background:var(--border);transition:all .3s;}
+.phase-pip.done{background:var(--green);}
+.phase-pip.active{background:var(--accent2);box-shadow:0 0 6px var(--accent2);}
+.phase-name-badge{font-size:0.78rem;font-weight:700;color:var(--accent2);background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);padding:3px 10px;border-radius:20px;}
+.top-right{display:flex;gap:8px;align-items:center;}
+button.small{font-family:inherit;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);padding:7px 13px;font-size:0.82rem;cursor:pointer;transition:all .2s;}
+button.small:hover{border-color:var(--accent);}
+button.small.danger{background:var(--danger);border-color:var(--danger);color:#fff;}
 
-    /* ── MAIN ── */
-    #main-screen { flex: 1; display: none; flex-direction: column; }
-    .top-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); gap: 16px;
-    }
-    .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
-    .logo span { color: var(--accent2); }
-    .stage-badge {
-      padding: 5px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
-      background: rgba(108,99,255,0.2); color: var(--accent); border: 1px solid rgba(108,99,255,0.4);
-    }
-    .turn-counter { font-size: 0.85rem; color: var(--text2); }
+/* 3-COL */
+.columns{flex:1;display:grid;grid-template-columns:280px 1fr 300px;overflow:hidden;}
+@media(max-width:1000px){.columns{grid-template-columns:240px 1fr 260px;}}
+@media(max-width:700px){.columns{grid-template-columns:1fr;}.script-panel,.coach-panel{border-top:1px solid var(--border);max-height:220px;}}
 
-    .columns { flex: 1; display: grid; grid-template-columns: 300px 1fr 300px; overflow: hidden; }
-    @media(max-width: 1024px) {
-      .columns { grid-template-columns: 260px 1fr 260px; }
-    }
-    @media(max-width: 768px) {
-      .columns { grid-template-columns: 1fr; }
-      .script-panel, .coach-panel { border-top: 1px solid var(--border); border-right: none; border-left: none; max-height: 240px; }
-    }
+/* SCRIPT PANEL */
+.script-panel{border-left:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:var(--surface);}
+.panel-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:2px;}
+.phase-block{border-radius:10px;border:1px solid var(--border);background:var(--surface2);overflow:hidden;transition:all .3s;}
+.phase-block.active{border-color:var(--accent2);background:rgba(0,212,170,.05);}
+.phase-block.done{border-color:rgba(64,201,127,.35);background:rgba(64,201,127,.04);}
+.phase-header{padding:9px 13px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.phase-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--border);transition:all .3s;}
+.phase-block.active .phase-dot{background:var(--accent2);box-shadow:0 0 5px var(--accent2);}
+.phase-block.done .phase-dot{background:var(--green);}
+.phase-label{font-size:0.78rem;font-weight:700;color:var(--text2);transition:color .3s;}
+.phase-block.active .phase-label{color:var(--accent2);}
+.phase-block.done .phase-label{color:var(--green);}
+.phase-lines{padding:0 13px 11px;display:none;flex-direction:column;gap:7px;}
+.phase-block.active .phase-lines{display:flex;}
+.script-line{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:8px;padding:8px 11px;font-size:0.82rem;line-height:1.6;color:var(--text);direction:ltr;text-align:left;cursor:pointer;transition:all .15s;position:relative;}
+.script-line:hover{background:rgba(108,99,255,.18);border-color:var(--accent);}
+.script-line.hit{background:rgba(64,201,127,.15);border-color:var(--green)!important;color:#fff;}
+.script-line.missed{background:rgba(255,77,109,.08);border-color:rgba(255,77,109,.3);}
+.line-tag{font-size:0.68rem;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:2px;}
+.line-check{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:0.85rem;}
+.copy-hint{font-size:0.68rem;color:var(--text2);text-align:center;padding:2px 0 4px;}
 
-    /* ── CHAT ── */
-    .chat-col { display: flex; flex-direction: column; overflow: hidden; }
-    .messages {
-      flex: 1; overflow-y: auto; padding: 20px;
-      display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
-    }
-    .message { display: flex; gap: 10px; align-items: flex-start; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-    .message.prospect { flex-direction: row-reverse; }
-    .avatar {
-      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700;
-    }
-    .avatar.rep { background: rgba(0,212,170,0.2); color: var(--accent2); border: 1px solid rgba(0,212,170,0.4); }
-    .avatar.prospect { background: rgba(108,99,255,0.2); color: var(--accent); border: 1px solid rgba(108,99,255,0.4); }
-    .bubble { max-width: 75%; padding: 13px 16px; border-radius: 14px; line-height: 1.65; font-size: 0.97rem; }
-    .bubble.rep { background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.25); border-top-left-radius: 4px; }
-    .bubble.prospect {
-      background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
-      border-top-right-radius: 4px; text-align: right; direction: rtl;
-    }
-    .bubble-label { font-size: 0.75rem; color: var(--text2); margin-bottom: 5px; }
+/* CHAT */
+.chat-col{display:flex;flex-direction:column;overflow:hidden;}
+.messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;}
+.message{display:flex;gap:9px;align-items:flex-start;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.message.prospect{flex-direction:row-reverse;}
+.avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;}
+.avatar.rep{background:rgba(0,212,170,.2);color:var(--accent2);border:1px solid rgba(0,212,170,.4);}
+.avatar.prospect{background:rgba(108,99,255,.2);color:var(--accent);border:1px solid rgba(108,99,255,.4);}
+.bubble{max-width:76%;padding:12px 15px;border-radius:14px;line-height:1.65;font-size:0.93rem;}
+.bubble.rep{background:rgba(0,212,170,.09);border:1px solid rgba(0,212,170,.22);border-top-left-radius:4px;}
+.bubble.prospect{background:rgba(108,99,255,.11);border:1px solid rgba(108,99,255,.28);border-top-right-radius:4px;text-align:right;direction:rtl;}
+.bubble-label{font-size:0.72rem;color:var(--text2);margin-bottom:4px;}
+.eval-bubble{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 15px;font-size:0.82rem;line-height:1.65;direction:rtl;text-align:right;animation:fadeIn .3s ease;}
+.eval-bubble .ev-hit{color:var(--green);}
+.eval-bubble .ev-miss{color:var(--warn);}
+.eval-bubble .ev-score{font-size:1rem;font-weight:700;}
 
-    /* ── MIC ── */
-    .mic-area {
-      padding: 16px 20px; background: var(--surface); border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: 12px;
-    }
-    .transcript-box {
-      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
-      padding: 12px 16px; min-height: 60px; font-size: 0.95rem; line-height: 1.6;
-      color: var(--text); direction: ltr; text-align: left; transition: border-color 0.2s;
-    }
-    .transcript-box.listening { border-color: var(--danger); }
-    .transcript-box.has-text { border-color: var(--accent2); }
-    .transcript-placeholder { color: var(--text2); font-style: italic; }
-    .mic-controls { display: flex; gap: 10px; align-items: center; }
-    #mic-btn {
-      width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--border);
-      background: var(--surface2); color: var(--text2);
-      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
-      flex-shrink: 0; transition: all 0.2s; padding: 0; cursor: pointer;
-    }
-    #mic-btn.recording {
-      background: rgba(255,77,109,0.2); border-color: var(--danger); color: var(--danger);
-      animation: micPulse 1.2s infinite;
-    }
-    @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,0.4)} 50%{box-shadow:0 0 0 12px rgba(255,77,109,0)} }
-    #send-btn { flex: 1; padding: 14px; font-size: 1rem; }
+/* MIC */
+.mic-area{padding:14px 18px;background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.transcript-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;min-height:54px;font-size:0.92rem;line-height:1.6;color:var(--text);direction:ltr;text-align:left;transition:border-color .2s;outline:none;}
+.transcript-box.listening{border-color:var(--danger);}
+.transcript-box.has-text{border-color:var(--accent2);}
+.transcript-placeholder{color:var(--text2);font-style:italic;}
+.mic-controls{display:flex;gap:9px;align-items:center;}
+#mic-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;transition:all .2s;padding:0;cursor:pointer;}
+#mic-btn.recording{background:rgba(255,77,109,.2);border-color:var(--danger);color:var(--danger);animation:micPulse 1.2s infinite;}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,.4)}50%{box-shadow:0 0 0 11px rgba(255,77,109,0)}}
+#send-btn-main{flex:1;font-family:inherit;border-radius:8px;border:none;background:var(--accent);color:#fff;padding:13px;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all .2s;}
+#send-btn-main:hover{background:#5a52e0;}
+#send-btn-main:disabled{opacity:.4;cursor:not-allowed;}
+#clear-btn{font-family:inherit;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);padding:13px 14px;cursor:pointer;font-size:0.9rem;}
 
-    /* ── SCRIPT PANEL ── */
-    .script-panel {
-      border-left: 1px solid var(--border); overflow-y: auto; padding: 16px;
-      display: flex; flex-direction: column; gap: 10px; background: var(--surface);
-    }
-    .phase-block {
-      border-radius: 10px; border: 1px solid var(--border);
-      background: var(--surface2); overflow: hidden; transition: all 0.3s;
-    }
-    .phase-block.active {
-      border-color: var(--accent2); background: rgba(0,212,170,0.06);
-      box-shadow: 0 0 0 1px rgba(0,212,170,0.2);
-    }
-    .phase-header {
-      padding: 10px 14px; display: flex; align-items: center; gap: 8px;
-      cursor: pointer; user-select: none;
-    }
-    .phase-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-      background: var(--border); transition: all 0.3s;
-    }
-    .phase-block.active .phase-dot { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
-    .phase-block.done .phase-dot { background: var(--green); }
-    .phase-name {
-      font-size: 0.82rem; font-weight: 700; color: var(--text2);
-      text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s;
-    }
-    .phase-block.active .phase-name { color: var(--accent2); }
-    .phase-block.done .phase-name { color: var(--green); }
-    .phase-lines {
-      padding: 0 14px 12px; display: none; flex-direction: column; gap: 8px;
-    }
-    .phase-block.active .phase-lines { display: flex; }
-    .script-line {
-      background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.2);
-      border-radius: 8px; padding: 9px 12px; font-size: 0.84rem; line-height: 1.6;
-      color: var(--text); direction: ltr; text-align: left; cursor: pointer;
-      transition: all 0.15s;
-    }
-    .script-line:hover { background: rgba(108,99,255,0.18); border-color: var(--accent); }
-    .script-line.highlight {
-      background: rgba(0,212,170,0.12); border-color: var(--accent2); color: #fff;
-    }
-    .script-line-label {
-      font-size: 0.72rem; color: var(--text2); margin-bottom: 2px;
-      text-transform: uppercase; letter-spacing: 0.8px;
-    }
-    .copy-hint { font-size: 0.7rem; color: var(--text2); text-align: center; padding: 4px 0; }
+/* COACH */
+.coach-panel{border-right:1px solid var(--border);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--surface);}
+.prospect-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:9px;}
+.pc-row{display:flex;flex-direction:column;gap:2px;}
+.pc-label{font-size:0.7rem;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;}
+.pc-val{font-size:0.83rem;line-height:1.5;}
+.pc-val.warn{color:var(--warn);}
+.pc-val.good{color:var(--green);}
+.score-summary{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.score-row{display:flex;align-items:center;gap:10px;}
+.score-label{font-size:0.78rem;color:var(--text2);min-width:90px;}
+.bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;transition:width .5s ease;}
+.score-num{font-size:0.82rem;font-weight:700;min-width:26px;text-align:left;}
 
-    /* ── COACH ── */
-    .coach-panel {
-      border-right: 1px solid var(--border); overflow-y: auto; padding: 20px;
-      display: flex; flex-direction: column; gap: 16px; background: var(--surface);
-    }
-    .panel-title {
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1.5px;
-      color: var(--text2); padding-bottom: 8px; border-bottom: 1px solid var(--border);
-    }
-    .eval-card {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 12px;
-      animation: fadeIn 0.3s ease;
-    }
-    .eval-row { display: flex; flex-direction: column; gap: 4px; }
-    .eval-label { font-size: 0.78rem; color: var(--text2); }
-    .eval-value { font-size: 0.9rem; line-height: 1.55; }
-    .eval-value.good { color: var(--green); }
-    .eval-value.warn { color: var(--warn); }
-    .score-bar { display: flex; align-items: center; gap: 10px; }
-    .bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-    .bar-num { font-size: 0.85rem; font-weight: 700; min-width: 28px; text-align: left; }
-    .empty-coach { color: var(--text2); font-size: 0.88rem; text-align: center; padding: 20px 0; line-height: 1.9; }
+/* DEBRIEF */
+#debrief-screen{display:none;flex:1;overflow-y:auto;padding:28px 20px;flex-direction:column;align-items:center;gap:24px;}
+.debrief-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 30px;width:100%;max-width:660px;display:flex;flex-direction:column;gap:18px;}
+.debrief-card h2{font-size:1.25rem;color:var(--accent2);text-align:center;}
+.big-score{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);border-radius:12px;padding:18px;text-align:center;}
+.big-score .num{font-size:3.2rem;font-weight:700;color:var(--accent);}
+.big-score .lbl{font-size:0.85rem;color:var(--text2);}
+.debrief-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.dg-item{background:var(--surface2);border-radius:10px;padding:13px;display:flex;flex-direction:column;gap:6px;}
+.dg-item .lbl{font-size:0.78rem;color:var(--text2);}
+.dg-item .val{font-size:1.8rem;font-weight:700;}
+.verdict-box{background:var(--surface2);border-radius:10px;padding:14px;font-size:0.9rem;line-height:1.7;}
+.verdict-box strong{color:var(--accent2);}
+.top-fix{background:rgba(255,169,77,.1);border:1px solid rgba(255,169,77,.3);border-radius:10px;padding:13px;font-size:0.88rem;line-height:1.65;}
+.top-fix strong{color:var(--warn);}
+.phase-report{display:flex;flex-direction:column;gap:8px;}
+.pr-row{display:flex;align-items:center;gap:10px;font-size:0.82rem;}
+.pr-row .pr-label{min-width:140px;color:var(--text2);}
+.pr-row .pr-status{font-weight:600;}
+.pr-row .pr-status.ok{color:var(--green);}
+.pr-row .pr-status.nok{color:var(--danger);}
 
-    /* ── DEBRIEF ── */
-    #debrief-screen {
-      display: none; flex: 1; overflow-y: auto; padding: 32px 20px;
-      flex-direction: column; align-items: center; gap: 28px;
-    }
-    .debrief-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 28px 32px; width: 100%; max-width: 680px;
-      display: flex; flex-direction: column; gap: 20px;
-    }
-    .debrief-card h2 { font-size: 1.3rem; color: var(--accent2); text-align: center; }
-    .overall-score {
-      background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3);
-      border-radius: 12px; padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 6px;
-    }
-    .overall-score .num { font-size: 3.5rem; font-weight: 700; color: var(--accent); }
-    .overall-score .lbl { font-size: 0.9rem; color: var(--text2); }
-    .debrief-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .score-item {
-      background: var(--surface2); border-radius: 10px; padding: 14px;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .score-item .lbl { font-size: 0.82rem; color: var(--text2); }
-    .score-item .num { font-size: 2rem; font-weight: 700; }
-    .verdict-box { background: var(--surface2); border-radius: 10px; padding: 16px; line-height: 1.7; font-size: 0.95rem; }
-    .verdict-box strong { color: var(--accent2); }
-    .top-fix {
-      background: rgba(255,169,77,0.1); border: 1px solid rgba(255,169,77,0.3);
-      border-radius: 10px; padding: 14px; font-size: 0.92rem; line-height: 1.65;
-    }
-    .top-fix strong { color: var(--warn); }
-
-    /* ── TYPING ── */
-    .typing { display: flex; gap: 5px; align-items: center; padding: 6px 0; }
-    .typing span { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: bounce 1.2s infinite; }
-    .typing span:nth-child(2) { animation-delay: 0.2s; }
-    .typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-    .profile-card {
-      border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px;
-      cursor: pointer; background: var(--surface2); transition: all 0.2s;
-      display: flex; flex-direction: column; gap: 4px;
-    }
-    .profile-card:hover { border-color: var(--accent); }
-    .profile-card.selected { border-color: var(--accent2); background: rgba(0,212,170,0.07); }
-    .profile-card .pname { font-weight: 700; font-size: 0.95rem; color: var(--text); }
-    .profile-card .pbio { font-size: 0.82rem; color: var(--text2); line-height: 1.55; }
-    .profile-card .ppain { font-size: 0.8rem; color: var(--warn); margin-top: 2px; }
-    .prospect-label {
-      font-size: 0.78rem; color: var(--text2); padding: 4px 0 8px;
-      border-bottom: 1px solid var(--border); margin-bottom: 4px;
-    }
-  </style>
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
 </head>
 <body>
 
@@ -276,13 +156,11 @@
 <div id="setup-screen">
   <div class="setup-card">
     <h2>اتمتها — مدرب المبيعات</h2>
-    <p>تدرّب على مكالمات المبيعات مع عميل سعودي افتراضي<br>ويقيّمك مدرب خفي بعد كل رد</p>
-
+    <p>تدرّب على مكالمات المبيعات — العميل يرد تلقائيًا<br>والتطبيق يتتبع كلامك ويقيّمك في الوقت الفعلي</p>
     <div class="field">
       <label>اختر العميل</label>
-      <div id="profile-cards" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div id="profile-cards" style="display:flex;flex-direction:column;gap:9px;"></div>
     </div>
-
     <div class="field">
       <label>مستوى الصعوبة</label>
       <div class="difficulty-row">
@@ -291,7 +169,6 @@
         <button class="diff-btn" data-diff="hard">صعب</button>
       </div>
     </div>
-
     <button class="primary" id="start-btn">ابدأ الجلسة</button>
   </div>
 </div>
@@ -299,45 +176,49 @@
 <!-- ══ MAIN ══ -->
 <div id="main-screen">
   <div class="top-bar">
-    <div style="display:flex;gap:10px;align-items:center">
-      <span class="logo">اتمتها <span>●</span></span>
-      <span class="stage-badge" id="stage-badge">فتح</span>
-    </div>
-    <span class="turn-counter" id="turn-counter">الدور 1</span>
-    <div style="display:flex;gap:8px">
-      <button id="tts-toggle-btn">🔊</button>
-      <button class="danger" id="end-session-btn">انهاء الجلسة</button>
+    <span class="logo">اتمتها <span>●</span></span>
+    <div class="phase-indicator" id="phase-indicator"></div>
+    <span class="phase-name-badge" id="phase-name-badge">المقدمة</span>
+    <div class="top-right">
+      <button class="small" id="tts-btn">🔊</button>
+      <button class="small danger" id="end-btn">انهاء الجلسة</button>
     </div>
   </div>
-
   <div class="columns">
-    <!-- ══ SCRIPT PANEL ══ -->
-    <div class="script-panel" id="script-panel">
+
+    <!-- SCRIPT -->
+    <div class="script-panel">
       <div class="panel-title">السكريبت</div>
-      <div class="copy-hint">اضغط على أي جملة لنسخها</div>
+      <div class="copy-hint">اضغط أي جملة لنسخها ✦ تتحول خضراء لما تقولها</div>
       <div id="phase-blocks"></div>
     </div>
 
+    <!-- CHAT -->
     <div class="chat-col">
       <div class="messages" id="messages"></div>
       <div class="mic-area">
-        <div class="transcript-box" id="transcript-box">
-          <span class="transcript-placeholder" id="transcript-placeholder">اضغط المايك وتكلم، أو اكتب ردك هنا...</span>
+        <div class="transcript-box" id="transcript-box" contenteditable="true">
+          <span class="transcript-placeholder" id="ph">اضغط المايك وتكلم، أو اكتب هنا...</span>
         </div>
         <div class="mic-controls">
           <button id="mic-btn">🎙️</button>
-          <button class="primary" id="send-btn" disabled>إرسال</button>
+          <button id="send-btn-main" disabled>إرسال ← Enter</button>
           <button id="clear-btn">🗑️</button>
         </div>
       </div>
     </div>
 
+    <!-- COACH -->
     <div class="coach-panel">
       <div class="panel-title">ملف العميل</div>
-      <div id="prospect-info"></div>
-      <div class="panel-title" style="margin-top:8px">تقييم المدرب</div>
-      <div id="coach-content">
-        <div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>
+      <div id="prospect-card"></div>
+      <div class="panel-title" style="margin-top:4px;">النتيجة الحالية</div>
+      <div class="score-summary" id="score-summary">
+        <div class="score-row"><span class="score-label">المقدمة</span><div class="bar-bg"><div class="bar-fill" id="sc-opening" style="width:0%;background:var(--text2)"></div></div><span class="score-num" id="sn-opening">—</span></div>
+        <div class="score-row"><span class="score-label">الاستكشاف</span><div class="bar-bg"><div class="bar-fill" id="sc-discovery" style="width:0%;background:var(--text2)"></div></div><span class="score-num" id="sn-discovery">—</span></div>
+        <div class="score-row"><span class="score-label">العرض</span><div class="bar-bg"><div class="bar-fill" id="sc-pitch" style="width:0%;background:var(--text2)"></div></div><span class="score-num" id="sn-pitch">—</span></div>
+        <div class="score-row"><span class="score-label">الإغلاق</span><div class="bar-bg"><div class="bar-fill" id="sc-closing" style="width:0%;background:var(--text2)"></div></div><span class="score-num" id="sn-closing">—</span></div>
+        <div class="score-row"><span class="score-label">الاعتراضات</span><div class="bar-bg"><div class="bar-fill" id="sc-objections" style="width:0%;background:var(--text2)"></div></div><span class="score-num" id="sn-objections">—</span></div>
       </div>
     </div>
   </div>
@@ -353,751 +234,734 @@
 </div>
 
 <script>
-// ══════════════════════════════════════════
-//  GROQ CONFIG
-// ══════════════════════════════════════════
-let GROQ_API_KEY = '';
-const GROQ_MODEL   = 'llama-3.1-8b-instant';
+// ═══════════════════════════════════════════════════
+//  PROSPECT PROFILES
+// ═══════════════════════════════════════════════════
+const PROFILES = [
+  {
+    name: "خالد العتيبي",
+    role: "مدير تشغيل — شركة لوجستية، الرياض",
+    pain: "يضيّع 3 ساعات يوميًا على تقارير يدوية",
+    goal: "يوفر وقت فريقه ويزيد الإنتاجية",
+    // scripted replies per phase, indexed by rep turn quality (good/neutral/bad)
+    replies: {
+      opening:        ["أيوه، هلا. مين معي؟", "تفضل، بس أنا مشغول شوي", "إيه؟ مين؟"],
+      discovery:      ["أيوه صراحة عندنا تقارير يدوية تاكل وقتنا كل أسبوع.", "نعم، يعني… التقارير والمتابعة اليدوية مرهقة.", "لا أعرف، بس حسيت إن في طريقة أفضل."],
+      pain_deep:      ["والله صراحة نضيع كثير وقت ومافي نتيجة واضحة.", "كثير أشياء يدوية وما في وقت.", "مو عارف بالضبط."],
+      desire:         ["أبي الفريق يركز على شغل أهم وما يضيع وقته.", "نعم، أبي حل سريع وفعّال.", "أبي أجرّب شيء جديد."],
+      cost:           ["صراحة لو ما تغير شيء بنمشي زي ما إحنا ومحد راضي.", "أيوه، هذا مقلقني فعلًا.", "ما أعرف، ممكن."],
+      transition:     ["زين، وش اللي عندك؟", "اشرح لي أكثر.", "طيب، كمّل."],
+      pitch:          ["هذا يبدو مناسب، بس وش الفرق عن غيره؟", "مو متأكد هل يناسب شركتنا.", "الفكرة حلوة لكن ما أعرف."],
+      commitment:     ["صراحة قريب، بس السعر هو اللي يوقفني.", "ما زلت محتاج أفكر فيه.", "ممكن، بس أبي أشوف أكثر."],
+      investment:     ["كم السعر؟", "غالي شوي. ما عندكم شيء أرخص؟", "2000 دولار؟ هذا كثير."],
+      objection_price:["طيب، لو كان عندكم تقسيط؟", "ما أقدر الحين.", "لازم أراجع ميزانيتي."],
+      objection_think:["محتاج وقت أفكر.", "خليني أرجع لك.", "مو الوقت المناسب الحين."],
+      close:          ["زين، كيف نكمل؟", "تمام، أنا معك.", "خلاص، خليني أجرب."],
+    },
+    hard_replies: {
+      opening:        ["مين؟ ما عندي وقت الحين.", "شو تبي؟ أنا مشغول."],
+      discovery:      ["ما أعرف إيش تقصد بالضبط.", "هذا مو مشكلتي الحين."],
+      pain_deep:      ["ما عندي وقت أتكلم عن هذا الحين.", "هذا شيء داخلي وما أشاركه."],
+      desire:         ["أبي حلول عملية مو كلام.", "كل شركة تقول نفس الشيء."],
+      cost:           ["ما أصدق إن هذا يغير شيء.", "جربنا أشياء قبل وما نجحت."],
+      transition:     ["خلصنا من الأسئلة؟ وش عندك؟", "كل هذا عشان تبيعني شيء."],
+      pitch:          ["سمعت هذا الكلام قبل.", "وش الدليل عنده يشتغل؟"],
+      commitment:     ["ما مقتنع بعد.", "محتاج أشوف نتائج أول."],
+      investment:     ["هذا السعر مو منطقي.", "لا، هذا كثير جدًا."],
+      objection_price:["ما في ميزانية الحين.", "ما أقدر أقرر لحالي."],
+      objection_think:["ما راح أرجع لك صراحة.", "أبعث لي على الإيميل وأشوف."],
+      close:          ["خلني أفكر أسبوع.", "مو الوقت المناسب."],
+    },
+  },
+  {
+    name: "سارة القحطاني",
+    role: "صاحبة متجر إلكتروني — عباءات",
+    pain: "ترد على العملاء يدويًا ليل نهار، تعبت",
+    goal: "تنام بدون قلق على الرسائل",
+    replies: {
+      opening:        ["أيوه، هلا. كيف عرفتي عني؟", "هلا، تفضل.", "مرحبا."],
+      discovery:      ["اللي خلاني أحجز إن صاحبتي قالت تجربي.", "أبي أشوف إيش عندكم.", "سمعت عنكم وأبي أعرف أكثر."],
+      pain_deep:      ["الردود على العملاء تاخذ وقتي كله وأنا مو قادرة أنام.", "كل يوم رسائل وما خلصت.", "متعبة صراحة."],
+      desire:         ["أبي شيء يرد بدلي وأنا نايمة.", "أبي أركز على تطوير المنتجات مو الردود.", "أبي حياتي ترتاح شوي."],
+      cost:           ["لو استمر كذا راح أوقف المتجر.", "الإرهاق يأثر على جودة الشغل.", "أيوه مقلقة من هذا."],
+      transition:     ["زين، وش تقدمون؟", "كيف تقدر تساعديني؟", "اشرحيلي."],
+      pitch:          ["هذا يبدو حلو، بس أنا ما أعرف تقنية كثير.", "ممكن يساعد، بس كيف أبدأ؟", "الفكرة حلوة."],
+      commitment:     ["أنا مهتمة بس خايفة ما أفهم.", "محتاجة أتأكد إنه سهل.", "قريبة بس محتاجة ضمان."],
+      investment:     ["وش السعر؟", "غالي شوي بالنسبة لي.", "ممكن أدفع على دفعتين؟"],
+      objection_price:["عندي ميزانية محدودة.", "لو كان أرخص.", "أبي أتأكد إنه يستاهل."],
+      objection_think:["أبي أسأل صاحبتي أول.", "خليني أشوف أكثر.", "محتاجة وقت."],
+      close:          ["تمام، كيف أبدأ؟", "زين، أنا معك.", "خلاص، جربي معي."],
+    },
+    hard_replies: {
+      opening:        ["مشغولة الحين.", "إيش تبين؟"],
+      discovery:      ["ما أعرف بالضبط وش أبي.", "بس جربت أشوف."],
+      pain_deep:      ["الموضوع معقد شوي.", "ما أبي أتكلم عن التفاصيل."],
+      desire:         ["أبي شيء يشتغل بدون ما أتعلم كثير.", "ما عندي وقت أتعلم."],
+      cost:           ["ما أصدق إن في حل سهل.", "جربت قبل وما نفع."],
+      transition:     ["وش الفرق عن باقي الشركات؟", "كل شركة تقول نفس الكلام."],
+      pitch:          ["يبدو معقد.", "ما أقدر أسوي هذا بنفسي."],
+      commitment:     ["خايفة أدفع وما يشتغل.", "محتاجة ضمان أكبر."],
+      investment:     ["هذا كثير بالنسبة لمتجر صغير.", "ما قادرة الحين."],
+      objection_price:["ما في ميزانية.", "أبي أشوف بدائل."],
+      objection_think:["ابعثيلي على الإيميل.", "ما راح أرجع بسرعة."],
+      close:          ["محتاجة وقت أكثر.", "مو الوقت المناسب."],
+    },
+  },
+  {
+    name: "فهد الشمري",
+    role: "مدير قسم — جهة حكومية",
+    pain: "قسمه متأخر تقنيًا ومديره يضغط عليه",
+    goal: "يثبت لمديره إنه يواكب التطور",
+    replies: {
+      opening:        ["أيوه، مين معي؟", "تفضل.", "هلا."],
+      discovery:      ["زميلي قال أتصل بكم وأشوف.", "مديري يطالبنا بتبني تقنيات جديدة.", "أبي أعرف وش عندكم."],
+      pain_deep:      ["المشكلة إن قسمنا ما يستخدم أدوات حديثة.", "كل شيء يدوي عندنا وبطيء.", "صعب نغير الأنظمة الحكومية."],
+      desire:         ["أبي أقدم شيء لمديري يثبت إننا نتطور.", "أبي نحسن الإنتاجية.", "نبي نكون على مستوى القسم الثاني."],
+      cost:           ["لو ما تغير شيء راح يكون في ضغط أكبر علينا.", "أيوه، المدير بدأ يلاحظ.", "صراحة في ضغط."],
+      transition:     ["وش تقدم بالضبط؟", "كيف يناسب القطاع الحكومي؟", "اشرح أكثر."],
+      pitch:          ["ممكن يكون مناسب، بس عندنا قيود.", "كيف يتكامل مع أنظمتنا؟", "الفكرة جيدة بس التطبيق صعب."],
+      commitment:     ["محتاج موافقة إدارية.", "ما أقدر أقرر لحالي.", "أبي أعرض على المدير."],
+      investment:     ["من يدفع؟ الجهة أو الموظف؟", "ما عندي ميزانية شخصية لهذا.", "هل في فاتورة رسمية؟"],
+      objection_price:["ميزانية القسم محدودة.", "لازم يمر على المالية.", "ما أقدر أقرر."],
+      objection_think:["محتاج أرفع طلب.", "هذا يأخذ وقت.", "لازم أستشير."],
+      close:          ["زين، ابعث لي مقترح رسمي.", "تمام، أشوف وش أقدر أسوي.", "خلاص، نكمل."],
+    },
+    hard_replies: {
+      opening:        ["ما عندي وقت الحين.", "مين أعطاك رقمي؟"],
+      discovery:      ["ما أعرف ليش حجزت صراحة.", "زميلي اللي قال."],
+      pain_deep:      ["هذي أمور داخلية.", "ما أقدر أشارك تفاصيل."],
+      desire:         ["أبي حلول عملية وما تكلف كثير.", "كلكم تقولون نفس الشيء."],
+      cost:           ["هذا مو شغلي أصلًا.", "في أشياء أهم الحين."],
+      transition:     ["وصلنا للبيع؟", "هذي الأسئلة ما لها داعي."],
+      pitch:          ["سمعنا هذا كثير.", "ما أصدق إنه سهل."],
+      commitment:     ["ما قادر أقرر.", "هذا يحتاج موافقات كثيرة."],
+      investment:     ["مو من صلاحيتي.", "هذا كثير."],
+      objection_price:["الميزانية مجمّدة.", "ما ينفع الحين."],
+      objection_think:["ابعث إيميل وأشوف.", "ما أعرف متى أرجع لك."],
+      close:          ["محتاج موافقات.", "ما الوقت المناسب الحين."],
+    },
+  },
+];
 
-// ══════════════════════════════════════════
-//  OFFER & SCRIPT
-// ══════════════════════════════════════════
-const OFFER = `
-المنتج: اتمتها — كورس + كوتشينج جماعي لتعلم الأتمتة والذكاء الاصطناعي للسعوديين
-السعر: 2000 دولار (دفعة واحدة) أو 300$/شهر مع ورشتين
-الجمهور المستهدف: سعوديون (مديرون، موظفون، رواد أعمال) يريدون توفير الوقت وبناء أنظمة أتمتة
-نقاط القيمة:
-- كوتشينج شخصي مع خبير سعودي يفهم ثقافتهم
-- ضمان 15 يوم: تبني workflow يشتغل بدلك أو ترد فلوسك + قهوة عربية
-- مجتمع سعودي، لا يهمنا آخر أداة بل الأداة التي توفر وقتك
-- 400+ شخص درسوا مع المدرب وأنجزوا مشاريع حقيقية
-- نادي محدود 30 شخص فقط
-البائع: أسامة الكلثامي — مختص أتمتة سعودي
-`;
-
-const SCRIPT = `
-خطوات سكريبت المبيعات:
-1. المقدمة: small talk ← تأطير المكالمة (سأسألك أسئلة، أشخّص وضعك، أعرضها عليك، وأنت تقرر)
-2. الاستكشاف:
-   أ. الدافع الأساسي: ما الذي خلاك تحجز هذه المكالمة؟
-   ب. الوضع الحالي: شغلك، استخدامك للذكاء الاصطناعي، مستوى راحتك
-   ج. الألم والمشكلة: أكبر تحدي، لماذا لم تحله، ماذا جربت، كم صار له
-   د. الوضع المرغوب: هدف 12 شهر، الدافع، التأثير على حياتك
-   ه. تكلفة عدم التغيير: ماذا لو لم يتغير شيء بعد 6 أشهر؟
-3. الانتقال: لخّص → "أنا واثق نقدر نساعدك لأن..." → اطلب إذنًا للعرض
-4. العرض: 3 أعمدة (الأساس → المهارات → المجتمع)، اسأل "ما الذي يلفت انتباهك؟"
-5. الالتزام: مقياس 1-10، عالج المخاوف
-6. الاستثمار: قدّم السعر (2000$)، اصمت بعدها
-7. الاعتراضات:
-   - الميزانية → عزّل، خطة دفع
-   - أحتاج أفكر → "القرارات تحتاج معلومات لا وقت"، اكتشف الاعتراض الحقيقي
-   - الصلاحية → حضّر الشريك أو أعد الموعد
-   - التوقيت → أعد التأطير، اكتشف الاعتراض الحقيقي
-   - إذا توقفت → الضمان (استرداد كامل 15 يوم)
-`;
-
-// ══════════════════════════════════════════
-//  SCRIPT PHASES DATA
-// ══════════════════════════════════════════
-const SCRIPT_PHASES = [
+// ═══════════════════════════════════════════════════
+//  SCRIPT PHASES
+// ═══════════════════════════════════════════════════
+const PHASES = [
   {
-    id: "opening",
-    label: "1. المقدمة",
-    stage: "opening",
-    lines: [
-      { label: "افتح", text: "هلا [الاسم]، كيف الحال؟ وين تتصل من؟" },
-      { label: "أطّر", text: "تمام. عارف ما عندنا وقت كثير، خليني أسألك بعض الأسئلة عن وضعك وين تبي توصل، وإذا حسيت إننا مناسبين أعرض عليك كيف نشتغل. يناسبك؟" },
+    id:"opening", label:"1. المقدمة", scoreKey:"opening",
+    keywords:["هلا","كيف الحال","وين تتصل","أسألك","نسألك","يناسبك","أسئلة"],
+    lines:[
+      {tag:"افتح",     text:"هلا [الاسم]، كيف الحال؟ وين تتصل من؟"},
+      {tag:"أطّر",     text:"تمام، ما عندنا وقت كثير. بأسألك أسئلة عن وضعك وين تبي توصل، وإذا حسيت إننا مناسبين أعرض كيف نشتغل. يناسبك؟"},
     ],
   },
   {
-    id: "discovery_motivation",
-    label: "2أ. الدافع",
-    stage: "discovery",
-    lines: [
-      { label: "افتح الاستكشاف", text: "زين، ايش اللي خلاك تحجز هالمكالمة أصلًا؟" },
-      { label: "عمّق", text: "لما تقول [X]، قصدك ايش بالضبط؟" },
+    id:"discovery_motivation", label:"2أ. الدافع", scoreKey:"discovery",
+    keywords:["خلاك","اللي خلاك","حجزت","اهتمامك","وش اللي","سبب"],
+    lines:[
+      {tag:"السؤال",   text:"زين، ايش اللي خلاك تحجز هالمكالمة أصلًا؟"},
+      {tag:"عمّق",    text:"لما تقول [X]، قصدك ايش بالضبط؟"},
     ],
   },
   {
-    id: "discovery_situation",
-    label: "2ب. الوضع الحالي",
-    stage: "discovery",
-    lines: [
-      { label: "شغله", text: "شو تسوي الحين بالضبط؟ وش طبيعة شغلك؟" },
-      { label: "استخدامه", text: "وكيف تستخدم الذكاء الاصطناعي أو الأتمتة الحين لو استخدمتها؟" },
-      { label: "مستواه", text: "مرتاح مع التقنية بشكل عام؟" },
+    id:"discovery_situation", label:"2ب. الوضع", scoreKey:"discovery",
+    keywords:["شو تسوي","شغلك","وضعك","تستخدم","تقنية","أدوات","ذكاء اصطناعي","أتمتة"],
+    lines:[
+      {tag:"شغله",     text:"وش تسوي الحين بالضبط؟ طبيعة شغلك؟"},
+      {tag:"استخدامه", text:"وكيف تستخدم الذكاء الاصطناعي الحين لو استخدمته؟"},
+      {tag:"مستواه",   text:"مرتاح مع التقنية بشكل عام؟"},
     ],
   },
   {
-    id: "discovery_pain",
-    label: "2ج. الألم",
-    stage: "discovery",
-    lines: [
-      { label: "التحدي", text: "وش أكبر تحدي تواجهه الحين بالموضوع هذا؟" },
-      { label: "ليش لسه؟", text: "ليش ما حليته لحد الآن؟" },
-      { label: "جرّبت؟", text: "ايش جربت قبل؟" },
-      { label: "كم صار؟", text: "كم صار له هالموضوع معك؟" },
+    id:"discovery_pain", label:"2ج. الألم", scoreKey:"discovery",
+    keywords:["أكبر تحدي","تحدي","مشكلة","صعوبة","ليش ما حليت","جربت","كم صار","منذ"],
+    lines:[
+      {tag:"التحدي",   text:"وش أكبر تحدي تواجهه الحين بهذا الموضوع؟"},
+      {tag:"ليش؟",    text:"ليش ما حليته لحد الآن؟"},
+      {tag:"جرّبت؟",  text:"ايش جربت قبل؟"},
+      {tag:"متى؟",    text:"كم صار له هالموضوع معك؟"},
     ],
   },
   {
-    id: "discovery_desire",
-    label: "2د. الهدف",
-    stage: "discovery",
-    lines: [
-      { label: "الهدف", text: "وش هدفك خلال 12 شهر في هذا الموضوع؟" },
-      { label: "الدافع", text: "ايش اللي يدفعك تحقق [الهدف]؟" },
-      { label: "التأثير", text: "لو حققت [الهدف]، كيف يأثر على حياتك الثانية؟" },
+    id:"discovery_desire", label:"2د. الهدف", scoreKey:"discovery",
+    keywords:["هدف","12 شهر","سنة","تبي توصل","يأثر","حياتك","لو حققت","تغير"],
+    lines:[
+      {tag:"الهدف",    text:"وش هدفك خلال 12 شهر في هذا الموضوع؟"},
+      {tag:"الدافع",   text:"ايش اللي يدفعك تحقق [الهدف]؟"},
+      {tag:"التأثير",  text:"لو حققت [الهدف]، كيف يأثر على حياتك الثانية؟"},
     ],
   },
   {
-    id: "discovery_cost",
-    label: "2هـ. تكلفة التأخير",
-    stage: "discovery",
-    lines: [
-      { label: "الأثر الحالي", text: "كيف أثّر عليك إنك لسه ما حليت [المشكلة]؟" },
-      { label: "فلاش فورورد", text: "لو مشينا 6 أشهر للأمام وما تغير شيء، هذا شيء تبي تتجنبه؟" },
-      { label: "كلفته", text: "وش يكلفك هذا من وقت أو طاقة أو فلوس؟" },
-      { label: "الالتزام", text: "من 1 لـ10، كيف ملتزم إنك تحل هذا؟" },
+    id:"discovery_cost", label:"2هـ. تكلفة التأخير", scoreKey:"discovery",
+    keywords:["6 أشهر","ما تغير","يكلفك","تكلف","وقت وطاقة","ملتزم","1 ل10","من 1"],
+    lines:[
+      {tag:"الأثر",    text:"كيف أثّر عليك إنك لسه ما حليت [المشكلة]؟"},
+      {tag:"فلاش",    text:"لو مشينا 6 أشهر للأمام وما تغير شيء — هذا شيء تبي تتجنبه؟"},
+      {tag:"كلفته",   text:"وش يكلفك هذا من وقت أو طاقة أو فلوس؟"},
+      {tag:"الالتزام", text:"من 1 لـ10، كيف ملتزم إنك تحل هذا؟"},
     ],
   },
   {
-    id: "transition",
-    label: "3. الانتقال",
-    stage: "discovery",
-    lines: [
-      { label: "لخّص", text: "زين. أحس إن عندي فهم واضح لوضعك. قبل ما نكمل، في شيء ثاني أحتاج أعرفه عنك؟" },
-      { label: "ثقة", text: "تمام [الاسم]، بناءً على كل اللي قلته، أنا واثق نقدر نساعدك لأن [السبب]. تبي أشرح لك كيف نشتغل؟" },
+    id:"transition", label:"3. الانتقال", scoreKey:"discovery",
+    keywords:["واثق","نقدر نساعد","بناءً على","تشرح","تعرض","يناسبك نشرح","أعرض"],
+    lines:[
+      {tag:"لخّص",    text:"زين. أحس عندي فهم واضح. قبل نكمل، في شيء ثاني أحتاج أعرفه؟"},
+      {tag:"ثقة",     text:"تمام [الاسم]، بناءً على كل اللي قلته أنا واثق نقدر نساعدك لأن [السبب]. تبي أشرح كيف نشتغل؟"},
     ],
   },
   {
-    id: "pitch",
-    label: "4. العرض",
-    stage: "discovery",
-    lines: [
-      { label: "أعمدة", text: "هو نظام من 3 خطوات يأخذك من [الوضع الحالي] إلى [النتيجة] في [المدة]. تكتب معي 1، 2، 3؟" },
-      { label: "عمود 1", text: "العمود الأول: الأساس. نبني معك فهم واضح وهدف محدد بدل ما تكون ضايع بين الأدوات." },
-      { label: "عمود 2", text: "العمود الثاني: المهارة. تبني أول workflow حقيقي يشتغل بدلك على مهمة محددة عندك." },
-      { label: "عمود 3", text: "العمود الثالث: المجتمع. تنضم لنادي من 30 سعودي يتعلمون معك كل أسبوع." },
-      { label: "سؤال", text: "ايش اللي يلفت انتباهك أكثر من هذا؟" },
+    id:"pitch", label:"4. العرض", scoreKey:"pitch",
+    keywords:["3 خطوات","عمود","نظام","أساس","مهارة","مجتمع","workflow","من","إلى","لفت انتباهك"],
+    lines:[
+      {tag:"ابدأ",     text:"هو نظام من 3 خطوات يأخذك من [الوضع] لـ[النتيجة]. تكتب معي 1، 2، 3؟"},
+      {tag:"عمود 1",  text:"العمود الأول: الأساس. نبني فهم واضح وهدف محدد بدل ما تكون ضايع بين الأدوات."},
+      {tag:"عمود 2",  text:"العمود الثاني: المهارة. تبني workflow حقيقي يشتغل بدلك على مهمة محددة عندك."},
+      {tag:"عمود 3",  text:"العمود الثالث: المجتمع. نادي من 30 سعودي يتعلمون معك كل أسبوع."},
+      {tag:"سؤال",    text:"ايش اللي يلفت انتباهك أكثر؟"},
     ],
   },
   {
-    id: "commitment",
-    label: "5. الالتزام",
-    stage: "closing",
-    lines: [
-      { label: "مقياس", text: "من 1 لـ10 — 10 تقول وين الرابط أشترك الحين، 1 تقول ابيك تنهي المكالمة — وين أنت؟" },
-      { label: "ليش مو 1؟", text: "زين، ليش ما قلت 1؟" },
-      { label: "وش ينقصه؟", text: "وش اللي يخليها 10؟" },
+    id:"commitment", label:"5. الالتزام", scoreKey:"closing",
+    keywords:["1 ل10","من 1","مقياس","10","ليش ما قلت 1","وش ينقصه","يخليها 10"],
+    lines:[
+      {tag:"مقياس",   text:"من 1 لـ10 — وين أنت الحين؟"},
+      {tag:"ليش مو 1؟",text:"ليش ما قلت 1؟"},
+      {tag:"وش ينقص؟",text:"وش اللي يخليها 10؟"},
     ],
   },
   {
-    id: "investment",
-    label: "6. السعر",
-    stage: "closing",
-    lines: [
-      { label: "قدّم", text: "الاستثمار هو 2000 دولار دفعة واحدة." },
-      { label: "اصمت", text: "[ اصمت — لا تضيف شيء، انتظر رده ]" },
+    id:"investment", label:"6. السعر", scoreKey:"closing",
+    keywords:["2000","ألفين","استثمار","سعر","دولار"],
+    lines:[
+      {tag:"قدّم",    text:"الاستثمار هو 2000 دولار دفعة واحدة."},
+      {tag:"⏸ اصمت", text:"[ صمت — لا تضيف شيء، انتظر رده ]"},
     ],
   },
   {
-    id: "objections",
-    label: "7. الاعتراضات",
-    stage: "objection",
-    lines: [
-      { label: "اعزل", text: "غير موضوع الفلوس، في شيء ثاني يوقفك؟" },
-      { label: "السعر", text: "لو الفلوس كانت موجودة الحين، كنت تشترك؟" },
-      { label: "أفكر فيه", text: "القرارات ما تحتاج وقت، تحتاج معلومات. وأنا المصدر الوحيد للمعلومات عن البرنامج. ايش اللي يوقفك تنضم اليوم؟" },
-      { label: "الضمان", text: "عندنا ضمان: في 15 يوم تبني workflow يشتغل بدلك، وإلا نرد فلوسك كاملة + قهوة عربية عليّ." },
-      { label: "خطة دفع", text: "ما نقدر نقسّمها على دفعتين؟" },
+    id:"objections", label:"7. الاعتراضات", scoreKey:"objections",
+    keywords:["غير الفلوس","فلوس جانبًا","لو كانت الفلوس","معلومات لا وقت","ضمان","15 يوم","دفعتين","تقسيط","يوقفك","يوقفها"],
+    lines:[
+      {tag:"اعزل",    text:"غير موضوع الفلوس، في شيء ثاني يوقفك؟"},
+      {tag:"السعر",   text:"لو الفلوس كانت موجودة الحين — كنت تشترك؟"},
+      {tag:"أفكر",    text:"القرارات ما تحتاج وقت، تحتاج معلومات. وأنا المصدر الوحيد. ايش اللي يوقفك اليوم؟"},
+      {tag:"الضمان",  text:"عندنا ضمان: 15 يوم — تبني workflow يشتغل بدلك وإلا نرد فلوسك + قهوة عربية عليّ."},
+      {tag:"دفعتين", text:"ما نقدر نقسّمها على دفعتين؟"},
     ],
   },
 ];
 
-let scriptState = {
-  currentPhaseId: "opening",
-  donePhaseIds: new Set(),
-  highlightedLine: null,
+const PHASE_ORDER = PHASES.map(p => p.id);
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let S = {
+  profileIdx: 0,
+  difficulty: "easy",
+  phaseIdx: 0,
+  turn: 0,
+  sessionOver: false,
+  tts: true,
+  scores: { opening:0, discovery:0, pitch:0, closing:0, objections:0 },
+  scoreCounts: { opening:0, discovery:0, pitch:0, closing:0, objections:0 },
+  hitLines: new Set(),   // "phaseId-lineIdx" keys
+  donePhases: new Set(),
 };
 
-function buildScriptPanel() {
+// ═══════════════════════════════════════════════════
+//  KEYWORD DETECTION
+// ═══════════════════════════════════════════════════
+function normalize(t){ return t.toLowerCase().replace(/[أإآا]/g,"ا").replace(/[ةه]/g,"ه").replace(/ى/g,"ي").replace(/[^؀-ۿa-z0-9 ]/g," "); }
+
+function detectHits(repText, phase){
+  const t = normalize(repText);
+  const hits = [];
+  phase.lines.forEach((line, idx) => {
+    const kws = normalize(line.text).split(/\s+/).filter(w => w.length > 3);
+    const matchCount = kws.filter(w => t.includes(w)).length;
+    if(matchCount >= 2) hits.push(idx);
+  });
+  return hits;
+}
+
+function scorePhrase(repText, phase){
+  const t = normalize(repText);
+  const phaseKws = phase.keywords.map(normalize);
+  const matched = phaseKws.filter(k => t.includes(normalize(k))).length;
+  return Math.round((matched / Math.max(phaseKws.length, 1)) * 100);
+}
+
+function detectPhaseFromText(repText){
+  const t = normalize(repText);
+  let best = null, bestScore = 0;
+  PHASES.forEach(p => {
+    const s = scorePhrase(repText, p);
+    if(s > bestScore){ bestScore = s; best = p.id; }
+  });
+  return bestScore >= 20 ? best : null;
+}
+
+// ═══════════════════════════════════════════════════
+//  PROSPECT REPLY ENGINE (no AI — scripted)
+// ═══════════════════════════════════════════════════
+function getProspectReply(repText, phaseId){
+  const profile = PROFILES[S.profileIdx];
+  const t = normalize(repText);
+  const isHard = S.difficulty === "hard";
+  const replies = isHard ? profile.hard_replies : profile.replies;
+
+  // map phase → reply bucket
+  const bucketMap = {
+    opening:               "opening",
+    discovery_motivation:  "discovery",
+    discovery_situation:   "discovery",
+    discovery_pain:        "pain_deep",
+    discovery_desire:      "desire",
+    discovery_cost:        "cost",
+    transition:            "transition",
+    pitch:                 "pitch",
+    commitment:            "commitment",
+    investment:            "investment",
+    objections:            "objection_price",
+  };
+
+  // detect if rep is handling a price objection
+  if(t.includes("فلوس") || t.includes("سعر") || t.includes("تقسيط") || t.includes("دفع")) {
+    const bucket = replies["objection_price"] || replies["investment"];
+    return bucket[Math.floor(Math.random() * bucket.length)];
+  }
+  if(t.includes("أفكر") || t.includes("وقت") || t.includes("رجع")) {
+    const bucket = replies["objection_think"] || replies["transition"];
+    return bucket[Math.floor(Math.random() * bucket.length)];
+  }
+  if(t.includes("تمام") || t.includes("أبدأ") || t.includes("نكمل")) {
+    const bucket = replies["close"] || replies["transition"];
+    return bucket[Math.floor(Math.random() * bucket.length)];
+  }
+
+  const bucket = replies[bucketMap[phaseId]] || replies["transition"];
+  return bucket[Math.floor(Math.random() * bucket.length)];
+}
+
+// ═══════════════════════════════════════════════════
+//  EVAL LOGIC
+// ═══════════════════════════════════════════════════
+function evalRepMessage(repText){
+  const phase = PHASES[S.phaseIdx];
+  const score = scorePhrase(repText, phase);
+  const hits = detectHits(repText, phase);
+
+  // accumulate scores
+  const key = phase.scoreKey;
+  S.scores[key] = Math.round((S.scores[key] * S.scoreCounts[key] + score) / (S.scoreCounts[key] + 1));
+  S.scoreCounts[key]++;
+
+  // mark hit lines
+  hits.forEach(idx => S.hitLines.add(`${phase.id}-${idx}`));
+
+  // what worked / missed
+  const hitLabels = hits.map(i => phase.lines[i].tag);
+  const missedLabels = phase.lines.filter((_, i) => !hits.includes(i)).map(l => l.tag);
+
+  // auto advance phase?
+  const detectedPhase = detectPhaseFromText(repText);
+  let advanced = false;
+  if(detectedPhase && PHASE_ORDER.indexOf(detectedPhase) > S.phaseIdx){
+    S.donePhases.add(phase.id);
+    S.phaseIdx = PHASE_ORDER.indexOf(detectedPhase);
+    advanced = true;
+  } else if(score >= 40 && S.phaseIdx < PHASES.length - 1){
+    // if rep covered enough of current phase, nudge forward
+    S.donePhases.add(phase.id);
+    S.phaseIdx = Math.min(S.phaseIdx + 1, PHASES.length - 1);
+    advanced = true;
+  }
+
+  return { score, hitLabels, missedLabels, advanced, newPhase: PHASES[S.phaseIdx] };
+}
+
+// ═══════════════════════════════════════════════════
+//  UI — SCRIPT PANEL
+// ═══════════════════════════════════════════════════
+function buildScriptPanel(){
   const container = document.getElementById("phase-blocks");
   container.innerHTML = "";
-  SCRIPT_PHASES.forEach(phase => {
+  PHASES.forEach((phase, pIdx) => {
+    const isActive = pIdx === S.phaseIdx;
+    const isDone = S.donePhases.has(phase.id);
     const block = document.createElement("div");
-    block.className = "phase-block" + (phase.id === scriptState.currentPhaseId ? " active" : "") + (scriptState.donePhaseIds.has(phase.id) ? " done" : "");
-    block.id = "phase-" + phase.id;
+    block.className = "phase-block" + (isActive ? " active" : "") + (isDone ? " done" : "");
+    block.id = "pb-" + phase.id;
 
     const header = document.createElement("div");
     header.className = "phase-header";
-    header.innerHTML = `<div class="phase-dot"></div><div class="phase-name">${phase.label}</div>`;
-    header.addEventListener("click", () => setActivePhase(phase.id));
+    header.innerHTML = `<div class="phase-dot"></div><div class="phase-label">${phase.label}</div>`;
+    header.onclick = () => { S.phaseIdx = pIdx; refreshScriptPanel(); };
 
     const linesDiv = document.createElement("div");
     linesDiv.className = "phase-lines";
-    phase.lines.forEach((line, idx) => {
-      const lineEl = document.createElement("div");
-      lineEl.className = "script-line";
-      lineEl.id = `line-${phase.id}-${idx}`;
-      lineEl.innerHTML = `<div class="script-line-label">${line.label}</div>${line.text}`;
-      lineEl.addEventListener("click", () => {
-        navigator.clipboard?.writeText(line.text).catch(() => {});
-        // flash highlight
-        document.querySelectorAll(".script-line").forEach(l => l.classList.remove("highlight"));
-        lineEl.classList.add("highlight");
-        setTimeout(() => lineEl.classList.remove("highlight"), 1200);
-      });
-      linesDiv.appendChild(lineEl);
+    phase.lines.forEach((line, lIdx) => {
+      const key = `${phase.id}-${lIdx}`;
+      const isHit = S.hitLines.has(key);
+      const el = document.createElement("div");
+      el.className = "script-line" + (isHit ? " hit" : "");
+      el.id = "sl-" + key;
+      el.innerHTML = `<div class="line-tag">${line.tag}</div>${line.text}${isHit ? '<span class="line-check">✓</span>' : ''}`;
+      el.onclick = () => {
+        navigator.clipboard?.writeText(line.text).catch(()=>{});
+        el.style.opacity = "0.6";
+        setTimeout(() => el.style.opacity = "1", 300);
+      };
+      linesDiv.appendChild(el);
     });
 
     block.appendChild(header);
     block.appendChild(linesDiv);
     container.appendChild(block);
   });
+
+  // build pips
+  const pip = document.getElementById("phase-indicator");
+  pip.innerHTML = "";
+  PHASES.forEach((p, i) => {
+    const d = document.createElement("div");
+    d.className = "phase-pip" + (i === S.phaseIdx ? " active" : "") + (S.donePhases.has(p.id) ? " done" : "");
+    pip.appendChild(d);
+  });
+
+  document.getElementById("phase-name-badge").textContent = PHASES[S.phaseIdx].label;
 }
 
-function setActivePhase(phaseId) {
-  scriptState.currentPhaseId = phaseId;
-  SCRIPT_PHASES.forEach(p => {
-    const block = document.getElementById("phase-" + p.id);
-    if (!block) return;
-    block.classList.remove("active", "done");
-    if (p.id === phaseId) block.classList.add("active");
-    else if (scriptState.donePhaseIds.has(p.id)) block.classList.add("done");
+function refreshScriptPanel(){
+  PHASES.forEach((phase, pIdx) => {
+    const block = document.getElementById("pb-" + phase.id);
+    if(!block) return;
+    block.className = "phase-block" + (pIdx === S.phaseIdx ? " active" : "") + (S.donePhases.has(phase.id) ? " done" : "");
+    phase.lines.forEach((_, lIdx) => {
+      const el = document.getElementById("sl-" + phase.id + "-" + lIdx);
+      if(!el) return;
+      const isHit = S.hitLines.has(`${phase.id}-${lIdx}`);
+      el.className = "script-line" + (isHit ? " hit" : "");
+      if(isHit && !el.querySelector(".line-check")){
+        el.insertAdjacentHTML("beforeend", '<span class="line-check">✓</span>');
+      }
+    });
   });
+  // pips
+  document.querySelectorAll(".phase-pip").forEach((pip, i) => {
+    pip.className = "phase-pip" + (i === S.phaseIdx ? " active" : "") + (S.donePhases.has(PHASES[i].id) ? " done" : "");
+  });
+  document.getElementById("phase-name-badge").textContent = PHASES[S.phaseIdx].label;
   // scroll active into view
-  const active = document.getElementById("phase-" + phaseId);
-  if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  const active = document.getElementById("pb-" + PHASES[S.phaseIdx].id);
+  if(active) active.scrollIntoView({behavior:"smooth", block:"nearest"});
 }
 
-// called after each AI response — advance phase based on stage + script_adherence
-function advanceScriptFromEval(stage, adherence, repText) {
-  const current = SCRIPT_PHASES.find(p => p.id === scriptState.currentPhaseId);
-  if (!current) return;
-
-  // map stage → phase sequence
-  const stageToPhases = {
-    opening: ["opening"],
-    discovery: ["discovery_motivation","discovery_situation","discovery_pain","discovery_desire","discovery_cost","transition","pitch"],
-    objection: ["objections"],
-    closing: ["commitment","investment","objections"],
-  };
-
-  // auto-detect phase from rep's text keywords
-  const text = (repText || "").toLowerCase();
-  let nextPhaseId = null;
-
-  if (stage === "discovery" && current.id === "opening") nextPhaseId = "discovery_motivation";
-  else if (stage === "discovery" && current.id === "discovery_motivation" && (text.includes("شغل") || text.includes("شو تسوي") || text.includes("وضع"))) nextPhaseId = "discovery_situation";
-  else if (stage === "discovery" && current.id === "discovery_situation" && (text.includes("تحدي") || text.includes("مشكل") || text.includes("صعوبة"))) nextPhaseId = "discovery_pain";
-  else if (stage === "discovery" && current.id === "discovery_pain" && (text.includes("هدف") || text.includes("تبي") || text.includes("12 شهر") || text.includes("سنة"))) nextPhaseId = "discovery_desire";
-  else if (stage === "discovery" && current.id === "discovery_desire" && (text.includes("6 أشهر") || text.includes("ما تغير") || text.includes("كلف") || text.includes("يكلف"))) nextPhaseId = "discovery_cost";
-  else if (stage === "discovery" && current.id === "discovery_cost" && (text.includes("واثق") || text.includes("نساعد") || text.includes("أشرح") || text.includes("عرض"))) nextPhaseId = "transition";
-  else if (stage === "discovery" && current.id === "transition" && (text.includes("عمود") || text.includes("3 خطوات") || text.includes("نظام") || text.includes("مرحلة"))) nextPhaseId = "pitch";
-  else if (stage === "closing" && (current.id === "pitch" || current.id === "transition")) nextPhaseId = "commitment";
-  else if (stage === "closing" && current.id === "commitment" && (text.includes("2000") || text.includes("استثمار") || text.includes("سعر"))) nextPhaseId = "investment";
-  else if (stage === "objection") nextPhaseId = "objections";
-
-  if (nextPhaseId && nextPhaseId !== scriptState.currentPhaseId) {
-    scriptState.donePhaseIds.add(scriptState.currentPhaseId);
-    setActivePhase(nextPhaseId);
-  }
-}
-
-// ══════════════════════════════════════════
-//  PROSPECT PROFILES
-// ══════════════════════════════════════════
-const PROSPECT_PROFILES = [
-  {
-    name: "خالد العتيبي",
-    bio: "مدير تشغيل في شركة لوجستية بالرياض، 34 سنة، مشغول دايما، شاف منشور عن الاتمتة وتواصل. عنده فريق 8 اشخاص يضيعون وقتهم في تقارير يدوية. ما جرب اي اداة ذكاء اصطناعي بجدية.",
-    pain: "يخسر 3 ساعات يوميا على تقارير يدوية، يحس فريقه مو منتج",
-    goal: "يوفر الوقت ويزيد انتاجية الفريق",
-  },
-  {
-    name: "سارة القحطاني",
-    bio: "صاحبة متجر الكتروني للعباءات، 28 سنة، تشغل كل شيء بنفسها. سمعت عن الاتمتة من صاحبتها. خايفة التقنية معقدة عليها.",
-    pain: "ترد على استفسارات العملاء يدويا ليل نهار، تعبت",
-    goal: "تنام بدون ما تفكر في الرد على الرسايل",
-  },
-  {
-    name: "فهد الشمري",
-    bio: "موظف حكومي، 40 سنة، مدير قسم. جاء من الحاح زميله. متشكك، يحس ان الذكاء الاصطناعي هايب وما هو لامثاله.",
-    pain: "قسمه متاخر في تبني التقنية، مديره يضغط عليه",
-    goal: "يثبت لمديره انه يواكب التطور",
-  },
-];
-
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let state = {
-  difficulty: 'easy',
-  profileIndex: 0,
-  history: [],
-  turn: 0,
-  stage: 'opening',
-  sessionOver: false,
-  lastProspectText: '',
-};
-
-function buildSystemPrompt() {
-  const profile = PROSPECT_PROFILES[state.profileIndex];
-  return `You are a sales training simulation. You play TWO roles that NEVER mix.
-
-ROLE 1 — PROSPECT (أولوية قصوى):
-You ARE ${profile.name}. Stay in character 100%. Never break.
-Background: ${profile.bio}
-Core pain: ${profile.pain}
-Goal: ${profile.goal}
-
-SPEAK ONLY in Saudi Najdi colloquial Arabic (عامية نجدية). Short natural replies like a real busy person. Never mention AI, scripts, or training. React realistically to what the rep says.
-
-ROLE 2 — HIDDEN COACH:
-Evaluate the rep's message silently inside the JSON eval field.
-
-OFFER being sold:
-${OFFER}
-
-SALES SCRIPT the rep is practicing:
-${SCRIPT}
-
-DIFFICULTY: ${state.difficulty}
-- easy: opens up fast, 1-2 mild objections, closes if rep is competent
-- mid: 3-4 real objections including price + "let me think", needs solid handling
-- hard: skeptical from turn 1, interrupts, stacks objections, tries to end call early, only closes if rep is excellent
-
-Buyer arc: skepticism → discovery → objections → decision
-React to what the rep ACTUALLY said. Good handling → soften and advance. Weak handling → push harder. ONE objection at a time.
-
-End session when: deal closes, hard decline, or rep abandons.
-
-OUTPUT: valid JSON only — no markdown, no extra text, nothing outside the JSON.
-
-Normal turn:
-{"prospect_reply":"<نجدية>","stage":"<opening|discovery|objection|closing>","session_over":false,"eval":{"objection_in_play":"<or null>","what_worked":"<specific>","what_missed":"<specific>","script_adherence":<0-100>,"tonality":"not_measured"}}
-
-When session_over true, add debrief:
-{"prospect_reply":"...","stage":"closing","session_over":true,"eval":{...},"debrief":{"overall_score":<0-100>,"discovery":<0-100>,"objection_handling":<0-100>,"closing":<0-100>,"top_fix":"<one thing>","verdict":"<would they have bought? why>"}}
-
-RULES:
-- prospect_reply ALWAYS in Saudi Najdi Arabic, in character
-- NEVER leak coaching into prospect_reply
-- Stay in difficulty level no matter what
-- Output ONLY the JSON object, nothing else`.trim();
-}
-
-// ══════════════════════════════════════════
-//  GROQ API CALL
-// ══════════════════════════════════════════
-async function callGroq(userMessage) {
-  const messages = [
-    { role: 'system', content: buildSystemPrompt() },
-    ...state.history,
-    { role: 'user', content: userMessage }
-  ];
-
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: 800,
-    }),
+// ═══════════════════════════════════════════════════
+//  UI — SCORE BARS
+// ═══════════════════════════════════════════════════
+function updateScoreBars(){
+  ["opening","discovery","pitch","closing","objections"].forEach(k => {
+    const s = S.scores[k];
+    const c = s >= 70 ? "var(--green)" : s >= 40 ? "var(--warn)" : "var(--danger)";
+    const bar = document.getElementById("sc-" + k);
+    const num = document.getElementById("sn-" + k);
+    if(bar){ bar.style.width = s + "%"; bar.style.background = c; }
+    if(num){ num.textContent = S.scoreCounts[k] > 0 ? s : "—"; num.style.color = c; }
   });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Groq error ${res.status}: ${err}`);
-  }
-  const data = await res.json();
-  return data.choices[0].message.content;
 }
 
-// ══════════════════════════════════════════
-//  PARSE JSON
-// ══════════════════════════════════════════
-function parseResponse(raw) {
-  const start = raw.indexOf('{');
-  const end = raw.lastIndexOf('}');
-  if (start === -1 || end === -1) throw new Error('No JSON in response');
-  return JSON.parse(raw.slice(start, end + 1));
-}
-
-// ══════════════════════════════════════════
-//  UI
-// ══════════════════════════════════════════
-const stageNames = { opening: 'فتح', discovery: 'استكشاف', objection: 'اعتراضات', closing: 'إغلاق' };
-
-function addMessage(role, text) {
-  const c = document.getElementById('messages');
-  const d = document.createElement('div');
-  d.className = `message ${role}`;
-  d.innerHTML = `
-    <div class="avatar ${role}">${role === 'rep' ? 'أ' : 'ع'}</div>
+// ═══════════════════════════════════════════════════
+//  UI — MESSAGES
+// ═══════════════════════════════════════════════════
+function addMsg(role, text){
+  const c = document.getElementById("messages");
+  const d = document.createElement("div");
+  d.className = "message " + role;
+  d.innerHTML = `<div class="avatar ${role}">${role==="rep"?"أ":"ع"}</div>
     <div class="bubble ${role}">
-      <div class="bubble-label">${role === 'rep' ? 'أنت (المندوب)' : 'العميل'}</div>
-      ${text}
+      <div class="bubble-label">${role==="rep"?"أنت":"العميل"}</div>${text}
     </div>`;
   c.appendChild(d);
   c.scrollTop = c.scrollHeight;
 }
 
-function showTyping() {
-  const c = document.getElementById('messages');
-  const d = document.createElement('div');
-  d.className = 'message prospect'; d.id = 'typing-indicator';
-  d.innerHTML = `<div class="avatar prospect">ع</div><div class="bubble prospect"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  c.appendChild(d); c.scrollTop = c.scrollHeight;
-}
-function removeTyping() { document.getElementById('typing-indicator')?.remove(); }
-
-function updateStage(s) {
-  state.stage = s;
-  document.getElementById('stage-badge').textContent = stageNames[s] || s;
-}
-function updateTurn() { document.getElementById('turn-counter').textContent = `الدور ${state.turn}`; }
-
-function scoreColor(n) { return n >= 75 ? '#40c97f' : n >= 50 ? '#ffa94d' : '#ff4d6d'; }
-
-function renderEval(ev) {
-  const a = ev.script_adherence ?? 0;
-  document.getElementById('coach-content').innerHTML = `
-    <div class="eval-card">
-      ${ev.objection_in_play ? `<div class="eval-row"><div class="eval-label">الاعتراض الحالي</div><div class="eval-value warn">⚡ ${ev.objection_in_play}</div></div>` : ''}
-      <div class="eval-row"><div class="eval-label">ما نجح</div><div class="eval-value good">✓ ${ev.what_worked || '—'}</div></div>
-      <div class="eval-row"><div class="eval-label">ما فات</div><div class="eval-value warn">✗ ${ev.what_missed || '—'}</div></div>
-      <div class="eval-row">
-        <div class="eval-label">الالتزام بالسكريبت</div>
-        <div class="score-bar">
-          <div class="bar-bg"><div class="bar-fill" style="width:${a}%;background:${scoreColor(a)}"></div></div>
-          <div class="bar-num" style="color:${scoreColor(a)}">${a}</div>
-        </div>
-      </div>
-    </div>`;
+function addEval(evalResult){
+  const c = document.getElementById("messages");
+  const d = document.createElement("div");
+  d.className = "eval-bubble";
+  const hitHtml = evalResult.hitLabels.length
+    ? `<span class="ev-hit">✓ قلت: ${evalResult.hitLabels.join("، ")}</span>`
+    : `<span class="ev-miss">✗ ما غطيت أي نقطة من المرحلة</span>`;
+  const missHtml = evalResult.missedLabels.length
+    ? `<br><span class="ev-miss">△ فاتك: ${evalResult.missedLabels.join("، ")}</span>` : "";
+  const adv = evalResult.advanced ? `<br><span style="color:var(--accent2)">← انتقلنا لـ ${evalResult.newPhase.label}</span>` : "";
+  d.innerHTML = `<span class="ev-score">${evalResult.score}/100</span> — ${hitHtml}${missHtml}${adv}`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  TTS
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 let ttsEnabled = true;
-function speak(text) {
-  if (!ttsEnabled || !window.speechSynthesis) return;
+function speak(text){
+  if(!ttsEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'ar-SA'; u.rate = 0.95;
-  const v = window.speechSynthesis.getVoices().find(x => x.lang.startsWith('ar'));
-  if (v) u.voice = v;
+  u.lang = "ar-SA"; u.rate = 0.95;
+  const v = window.speechSynthesis.getVoices().find(x => x.lang.startsWith("ar"));
+  if(v) u.voice = v;
   window.speechSynthesis.speak(u);
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  SPEECH RECOGNITION
-// ══════════════════════════════════════════
-let recognition = null, isRecording = false, finalTranscript = '';
+// ═══════════════════════════════════════════════════
+let recog = null, isRec = false, finalT = "";
 
-function setupRecognition() {
+function setupRec(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { document.getElementById('mic-btn').disabled = true; return; }
-  recognition = new SR();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = 'ar-SA';
-
-  recognition.onresult = (e) => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
+  if(!SR){ document.getElementById("mic-btn").disabled = true; return; }
+  recog = new SR();
+  recog.continuous = true; recog.interimResults = true; recog.lang = "ar-SA";
+  recog.onresult = e => {
+    let interim = "";
+    for(let i = e.resultIndex; i < e.results.length; i++){
       const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) finalTranscript += t + ' ';
+      if(e.results[i].isFinal) finalT += t + " ";
       else interim += t;
     }
-    const box = document.getElementById('transcript-box');
-    const display = (finalTranscript + interim).trim();
-    if (display) {
-      document.getElementById('transcript-placeholder').style.display = 'none';
-      const tn = box.childNodes[0];
-      tn && tn.nodeType === 3 ? (tn.textContent = display) : box.insertBefore(document.createTextNode(display), document.getElementById('transcript-placeholder'));
-    }
-    box.className = 'transcript-box has-text';
-    document.getElementById('send-btn').disabled = false;
+    const box = document.getElementById("transcript-box");
+    const display = (finalT + interim).trim();
+    document.getElementById("ph").style.display = display ? "none" : "";
+    // set text node
+    const existing = [...box.childNodes].find(n => n.nodeType === 3);
+    if(existing) existing.textContent = display;
+    else box.insertBefore(document.createTextNode(display), document.getElementById("ph"));
+    box.className = "transcript-box has-text";
+    document.getElementById("send-btn-main").disabled = !display;
   };
-  recognition.onerror = (e) => { if (e.error !== 'no-speech') stopRecording(); };
-  recognition.onend = () => { if (isRecording) recognition.start(); };
+  recog.onerror = e => { if(e.error !== "no-speech") stopRec(); };
+  recog.onend = () => { if(isRec) recog.start(); };
 }
 
-function startRecording() {
-  if (!recognition) return;
-  finalTranscript = '';
-  const box = document.getElementById('transcript-box');
-  box.innerHTML = '<span class="transcript-placeholder" id="transcript-placeholder">تسجيل...</span>';
-  box.className = 'transcript-box listening';
-  document.getElementById('send-btn').disabled = true;
-  isRecording = true;
-  document.getElementById('mic-btn').className = 'recording';
-  document.getElementById('mic-btn').textContent = '⏹';
-  recognition.start();
+function startRec(){
+  if(!recog) return;
+  finalT = "";
+  const box = document.getElementById("transcript-box");
+  box.innerHTML = '<span class="transcript-placeholder" id="ph">تسجيل...</span>';
+  box.className = "transcript-box listening";
+  document.getElementById("send-btn-main").disabled = true;
+  isRec = true;
+  document.getElementById("mic-btn").className = "recording";
+  document.getElementById("mic-btn").textContent = "⏹";
+  recog.start();
 }
 
-function stopRecording() {
-  isRecording = false;
-  try { recognition?.stop(); } catch(e){}
-  document.getElementById('mic-btn').className = '';
-  document.getElementById('mic-btn').textContent = '🎙️';
-  const text = finalTranscript.trim();
-  const box = document.getElementById('transcript-box');
-  if (text) {
-    box.className = 'transcript-box has-text';
-    document.getElementById('send-btn').disabled = false;
-  } else {
-    box.className = 'transcript-box';
-    box.innerHTML = '<span class="transcript-placeholder" id="transcript-placeholder">اضغط المايك وتكلم، أو اكتب ردك هنا...</span>';
-    document.getElementById('send-btn').disabled = true;
-  }
+function stopRec(){
+  isRec = false;
+  try{ recog?.stop(); } catch(e){}
+  document.getElementById("mic-btn").className = "";
+  document.getElementById("mic-btn").textContent = "🎙️";
+  const box = document.getElementById("transcript-box");
+  const text = finalT.trim();
+  if(text){ box.className = "transcript-box has-text"; document.getElementById("send-btn-main").disabled = false; }
+  else { clearInput(); }
 }
 
-function getTranscript() {
-  return document.getElementById('transcript-box').innerText
-    .replace('اضغط المايك وتكلم، أو اكتب ردك هنا...', '').replace('تسجيل...', '').trim();
+function getInput(){
+  const box = document.getElementById("transcript-box");
+  return box.innerText.replace("اضغط المايك وتكلم، أو اكتب هنا...","").replace("تسجيل...","").trim();
 }
 
-function clearTranscript() {
-  finalTranscript = '';
-  const box = document.getElementById('transcript-box');
-  box.className = 'transcript-box';
-  box.innerHTML = '<span class="transcript-placeholder" id="transcript-placeholder">اضغط المايك وتكلم، أو اكتب ردك هنا...</span>';
-  document.getElementById('send-btn').disabled = true;
+function clearInput(){
+  finalT = "";
+  const box = document.getElementById("transcript-box");
+  box.className = "transcript-box";
+  box.innerHTML = '<span class="transcript-placeholder" id="ph">اضغط المايك وتكلم، أو اكتب هنا...</span>';
+  document.getElementById("send-btn-main").disabled = true;
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  SEND
-// ══════════════════════════════════════════
-async function sendMessage() {
-  if (state.sessionOver) return;
-  const text = getTranscript();
-  if (!text) return;
-  if (isRecording) stopRecording();
+// ═══════════════════════════════════════════════════
+function sendMessage(){
+  if(S.sessionOver) return;
+  const text = getInput();
+  if(!text) return;
+  if(isRec) stopRec();
 
-  addMessage('rep', text);
-  clearTranscript();
-  document.getElementById('send-btn').disabled = true;
-  state.history.push({ role: 'user', content: text });
-  state.turn++;
-  updateTurn();
-  showTyping();
+  addMsg("rep", text);
+  clearInput();
+  S.turn++;
 
-  try {
-    const raw = await callGroq(text);
-    removeTyping();
-    const parsed = parseResponse(raw);
-    state.history.push({ role: 'assistant', content: raw });
+  // evaluate
+  const evalResult = evalRepMessage(text);
+  addEval(evalResult);
+  refreshScriptPanel();
+  updateScoreBars();
 
-    if (parsed.prospect_reply) {
-      addMessage('prospect', parsed.prospect_reply);
-      state.lastProspectText = parsed.prospect_reply;
-      speak(parsed.prospect_reply);
-    }
-    if (parsed.stage) updateStage(parsed.stage);
-    if (parsed.eval) {
-      renderEval(parsed.eval);
-      advanceScriptFromEval(parsed.stage, parsed.eval.script_adherence, text);
-    }
-    if (parsed.session_over && parsed.debrief) {
-      state.sessionOver = true;
-      setTimeout(() => showDebrief(parsed.debrief), 1500);
-    }
-  } catch(e) {
-    removeTyping();
-    addMessage('prospect', `[خطأ: ${e.message}]`);
-    console.error(e);
-  }
+  // prospect reply
+  const phaseId = PHASES[S.phaseIdx].id;
+  const reply = getProspectReply(text, phaseId);
+  setTimeout(() => {
+    addMsg("prospect", reply);
+    speak(reply);
+  }, 400);
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  DEBRIEF
-// ══════════════════════════════════════════
-function showDebrief(d) {
-  document.getElementById('main-screen').style.display = 'none';
-  document.getElementById('debrief-screen').style.display = 'flex';
-  const scores = [
-    { label: 'الاستكشاف', val: d.discovery },
-    { label: 'الاعتراضات', val: d.objection_handling },
-    { label: 'الإغلاق', val: d.closing },
-  ];
-  document.getElementById('debrief-content').innerHTML = `
-    <div class="overall-score">
-      <div class="num">${d.overall_score}</div>
-      <div class="lbl">النتيجة الإجمالية / 100</div>
+// ═══════════════════════════════════════════════════
+function showDebrief(){
+  S.sessionOver = true;
+  document.getElementById("main-screen").style.display = "none";
+  document.getElementById("debrief-screen").style.display = "flex";
+
+  const overall = Math.round(Object.values(S.scores).reduce((a,b)=>a+b,0) / 5);
+  const phaseReport = PHASES.map(p => ({
+    label: p.label,
+    done: S.donePhases.has(p.id),
+    score: S.scores[p.scoreKey] || 0,
+  }));
+
+  // top fix
+  const weakest = Object.entries(S.scores).sort((a,b)=>a[1]-b[1])[0];
+  const fixMap = {
+    opening: "ركز على تأطير المكالمة بشكل واضح قبل ما تبدأ الأسئلة",
+    discovery: "اسأل أسئلة أعمق عن الألم والهدف، ما تكتفي بسؤال واحد",
+    pitch: "اذكر الأعمدة الثلاثة كلها واسأل 'ايش يلفت انتباهك؟'",
+    closing: "استخدم مقياس 1-10 ثم اصمت بعد ما تقدم السعر",
+    objections: "اعزل الاعتراض أولاً قبل ما تعالجه، واستخدم الضمان آخر ورقة",
+  };
+
+  const coverageHtml = phaseReport.map(p =>
+    `<div class="pr-row"><span class="pr-label">${p.label}</span><span class="pr-status ${p.done?"ok":"nok"}">${p.done?"✓ غطّيتها":"✗ ما غطّيتها"}</span></div>`
+  ).join("");
+
+  document.getElementById("debrief-content").innerHTML = `
+    <div class="big-score"><div class="num">${overall}</div><div class="lbl">النتيجة الإجمالية / 100</div></div>
+    <div class="debrief-grid">
+      <div class="dg-item"><div class="lbl">الاستكشاف</div><div class="val" style="color:${scColor(S.scores.discovery)}">${S.scores.discovery}</div></div>
+      <div class="dg-item"><div class="lbl">العرض</div><div class="val" style="color:${scColor(S.scores.pitch)}">${S.scores.pitch}</div></div>
+      <div class="dg-item"><div class="lbl">الإغلاق</div><div class="val" style="color:${scColor(S.scores.closing)}">${S.scores.closing}</div></div>
+      <div class="dg-item"><div class="lbl">الاعتراضات</div><div class="val" style="color:${scColor(S.scores.objections)}">${S.scores.objections}</div></div>
     </div>
-    <div class="debrief-scores">
-      ${scores.map(s => `
-        <div class="score-item">
-          <div class="lbl">${s.label}</div>
-          <div class="num" style="color:${scoreColor(s.val)}">${s.val}</div>
-          <div class="bar-bg" style="height:5px;border-radius:3px;overflow:hidden">
-            <div style="height:100%;width:${s.val}%;background:${scoreColor(s.val)};border-radius:3px"></div>
-          </div>
-        </div>`).join('')}
-    </div>
-    <div class="top-fix"><strong>الأهم لتحسينه:</strong><br>${d.top_fix || '—'}</div>
-    <div class="verdict-box"><strong>الحكم:</strong> ${d.verdict || '—'}</div>`;
+    <div class="top-fix"><strong>الأهم لتحسينه:</strong><br>${fixMap[weakest[0]] || "راجع السكريبت كاملًا"}</div>
+    <div class="verdict-box"><strong>تغطية المراحل:</strong><br><br><div class="phase-report">${coverageHtml}</div></div>`;
 }
 
-// ══════════════════════════════════════════
-//  END SESSION
-// ══════════════════════════════════════════
-async function endSessionManually() {
-  if (state.sessionOver) return;
-  state.sessionOver = true;
-  if (isRecording) stopRecording();
-  showTyping();
-  document.getElementById('end-session-btn').disabled = true;
-  try {
-    const raw = await callGroq('[SYSTEM: المندوب ينهي الجلسة. قدّم التقييم النهائي مع debrief كأن session_over: true. أخرج JSON فقط.]');
-    removeTyping();
-    const parsed = parseResponse(raw);
-    showDebrief(parsed.debrief || { overall_score: 0, discovery: 0, objection_handling: 0, closing: 0, top_fix: 'انتهت الجلسة مبكرًا', verdict: 'لم تكتمل' });
-  } catch(e) {
-    removeTyping();
-    showDebrief({ overall_score: 0, discovery: 0, objection_handling: 0, closing: 0, top_fix: 'خطأ في الاتصال', verdict: '—' });
-  }
-}
+function scColor(n){ return n>=70?"var(--green)":n>=40?"var(--warn)":"var(--danger)"; }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  RESET
-// ══════════════════════════════════════════
-function resetApp() {
-  state.history = []; state.turn = 0; state.stage = 'opening'; state.sessionOver = false;
-  document.getElementById('messages').innerHTML = '';
-  document.getElementById('coach-content').innerHTML = '<div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>';
-  document.getElementById('prospect-info').innerHTML = '';
-  document.getElementById('phase-blocks').innerHTML = '';
-  clearTranscript();
-  document.getElementById('end-session-btn').disabled = false;
-  updateStage('opening'); updateTurn();
-  document.getElementById('debrief-screen').style.display = 'none';
-  document.getElementById('main-screen').style.display = 'flex';
+// ═══════════════════════════════════════════════════
+function resetApp(){
+  S.phaseIdx=0; S.turn=0; S.sessionOver=false;
+  S.scores={opening:0,discovery:0,pitch:0,closing:0,objections:0};
+  S.scoreCounts={opening:0,discovery:0,pitch:0,closing:0,objections:0};
+  S.hitLines=new Set(); S.donePhases=new Set();
+  document.getElementById("messages").innerHTML="";
+  clearInput();
+  document.getElementById("end-btn").disabled=false;
+  document.getElementById("debrief-screen").style.display="none";
+  document.getElementById("main-screen").style.display="flex";
   window.speechSynthesis.cancel();
   startSession();
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  START
-// ══════════════════════════════════════════
-async function startSession() {
-  document.getElementById('setup-screen').style.display = 'none';
-  const main = document.getElementById('main-screen');
-  main.style.display = 'flex'; main.style.flexDirection = 'column';
+// ═══════════════════════════════════════════════════
+function startSession(){
+  document.getElementById("setup-screen").style.display="none";
+  const main = document.getElementById("main-screen");
+  main.style.display="flex"; main.style.flexDirection="column";
 
-  // reset script state
-  scriptState.currentPhaseId = "opening";
-  scriptState.donePhaseIds = new Set();
-  buildScriptPanel();
-
-  // show prospect name + info card
-  const profile = PROSPECT_PROFILES[state.profileIndex];
-  document.getElementById('stage-badge').textContent = profile.name;
-  document.getElementById('prospect-info').innerHTML = `
-    <div class="eval-card" style="margin-bottom:4px">
-      <div class="eval-row"><div class="eval-label">الاسم</div><div class="eval-value" style="font-weight:700">${profile.name}</div></div>
-      <div class="eval-row"><div class="eval-label">الخلفية</div><div class="eval-value" style="font-size:0.82rem">${profile.bio}</div></div>
-      <div class="eval-row"><div class="eval-label">الألم الأساسي</div><div class="eval-value warn">⚡ ${profile.pain}</div></div>
-      <div class="eval-row"><div class="eval-label">هدفه</div><div class="eval-value good">◎ ${profile.goal}</div></div>
+  const profile = PROFILES[S.profileIdx];
+  // prospect card
+  document.getElementById("prospect-card").innerHTML = `
+    <div class="prospect-card">
+      <div class="pc-row"><div class="pc-label">الاسم</div><div class="pc-val" style="font-weight:700">${profile.name}</div></div>
+      <div class="pc-row"><div class="pc-label">الدور</div><div class="pc-val">${profile.role}</div></div>
+      <div class="pc-row"><div class="pc-label">ألمه</div><div class="pc-val warn">⚡ ${profile.pain}</div></div>
+      <div class="pc-row"><div class="pc-label">هدفه</div><div class="pc-val good">◎ ${profile.goal}</div></div>
     </div>`;
 
-  showTyping();
-  try {
-    const raw = await callGroq('[SESSION_START] أنت العميل. ابدأ المكالمة بشكل طبيعي كأنك رددت على مكالمة مبيعات. رد قصير بالعامية النجدية. أخرج JSON فقط.');
-    removeTyping();
-    const parsed = parseResponse(raw);
-    if (parsed.prospect_reply) {
-      addMessage('prospect', parsed.prospect_reply);
-      state.lastProspectText = parsed.prospect_reply;
-      speak(parsed.prospect_reply);
-    }
-    if (parsed.stage) updateStage(parsed.stage);
-    state.history.push({ role: 'assistant', content: raw });
-  } catch(e) {
-    removeTyping();
-    addMessage('prospect', `[خطأ في الاتصال بـ Groq: ${e.message}]`);
-  }
+  buildScriptPanel();
+  updateScoreBars();
+
+  // opening line from prospect
+  const opening = profile.replies.opening[0];
+  setTimeout(() => { addMsg("prospect", opening); speak(opening); }, 300);
 }
 
-// ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  INIT
-// ══════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', async () => {
-  // load key from server env (never exposed in source)
-  try {
-    const r = await fetch('/api/config');
-    const d = await r.json();
-    GROQ_API_KEY = d.key;
-  } catch(e) { console.warn('Could not load config', e); }
-
-  // build prospect profile cards
-  const profileContainer = document.getElementById('profile-cards');
-  PROSPECT_PROFILES.forEach((p, i) => {
-    const card = document.createElement('div');
-    card.className = 'profile-card' + (i === 0 ? ' selected' : '');
-    card.innerHTML = `<div class="pname">${p.name}</div><div class="pbio">${p.bio}</div><div class="ppain">⚡ ${p.pain}</div>`;
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      state.profileIndex = i;
-    });
-    profileContainer.appendChild(card);
-  });
-
-  setupRecognition();
+// ═══════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded", () => {
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  setupRec();
 
-  document.querySelectorAll('.diff-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      state.difficulty = btn.dataset.diff;
-    });
+  // profile cards
+  PROFILES.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "profile-card" + (i===0?" selected":"");
+    card.innerHTML = `<div class="pname">${p.name}</div><div class="pbio">${p.role}</div><div class="ppain">⚡ ${p.pain}</div>`;
+    card.onclick = () => {
+      document.querySelectorAll(".profile-card").forEach(c=>c.classList.remove("selected"));
+      card.classList.add("selected");
+      S.profileIdx = i;
+    };
+    document.getElementById("profile-cards").appendChild(card);
   });
 
-  document.getElementById('start-btn').addEventListener('click', startSession);
-  document.getElementById('mic-btn').addEventListener('click', () => isRecording ? stopRecording() : startRecording());
-  document.getElementById('send-btn').addEventListener('click', sendMessage);
-  document.getElementById('clear-btn').addEventListener('click', () => { if (isRecording) stopRecording(); clearTranscript(); });
-  document.getElementById('tts-toggle-btn').addEventListener('click', () => {
+  // difficulty
+  document.querySelectorAll(".diff-btn").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("selected"));
+      btn.classList.add("selected");
+      S.difficulty = btn.dataset.diff;
+    };
+  });
+
+  document.getElementById("start-btn").onclick = startSession;
+  document.getElementById("mic-btn").onclick = () => isRec ? stopRec() : startRec();
+  document.getElementById("send-btn-main").onclick = sendMessage;
+  document.getElementById("clear-btn").onclick = () => { if(isRec) stopRec(); clearInput(); };
+  document.getElementById("end-btn").onclick = showDebrief;
+  document.getElementById("tts-btn").onclick = () => {
     ttsEnabled = !ttsEnabled;
-    document.getElementById('tts-toggle-btn').textContent = ttsEnabled ? '🔊' : '🔇';
-    if (!ttsEnabled) window.speechSynthesis.cancel();
-    else if (state.lastProspectText) speak(state.lastProspectText);
-  });
-  document.getElementById('end-session-btn').addEventListener('click', endSessionManually);
+    document.getElementById("tts-btn").textContent = ttsEnabled ? "🔊" : "🔇";
+    if(!ttsEnabled) window.speechSynthesis.cancel();
+  };
 
-  // make transcript editable for typing
-  const box = document.getElementById('transcript-box');
-  box.contentEditable = true;
-  box.addEventListener('input', () => {
-    const text = box.innerText.replace('اضغط المايك وتكلم، أو اكتب ردك هنا...', '').trim();
-    box.className = text ? 'transcript-box has-text' : 'transcript-box';
-    document.getElementById('send-btn').disabled = !text;
+  // transcript box typing
+  const box = document.getElementById("transcript-box");
+  box.addEventListener("input", () => {
+    const text = box.innerText.replace("اضغط المايك وتكلم، أو اكتب هنا...","").trim();
+    box.className = text ? "transcript-box has-text" : "transcript-box";
+    document.getElementById("send-btn-main").disabled = !text;
+    document.getElementById("ph").style.display = text ? "none" : "";
   });
-  box.addEventListener('focus', () => {
-    if (box.innerText.trim() === 'اضغط المايك وتكلم، أو اكتب ردك هنا...') box.innerHTML = '';
+  box.addEventListener("focus", () => {
+    if(box.innerText.trim() === "اضغط المايك وتكلم، أو اكتب هنا...") box.innerHTML = '<span class="transcript-placeholder" id="ph"></span>';
   });
 
-  document.addEventListener('keydown', (e) => {
-    const tag = document.activeElement.tagName;
-    if (tag === 'INPUT' || tag === 'SELECT') return;
-    if (e.code === 'Space' && !e.ctrlKey && !e.metaKey && document.activeElement !== box) {
+  // keyboard
+  document.addEventListener("keydown", e => {
+    if(document.activeElement === box) return;
+    if(e.code==="Space" && !e.ctrlKey && !e.metaKey){
       e.preventDefault();
-      if (document.getElementById('main-screen').style.display !== 'none')
-        isRecording ? stopRecording() : startRecording();
+      if(document.getElementById("main-screen").style.display!=="none") isRec ? stopRec() : startRec();
     }
-    if (e.code === 'Enter' && !e.shiftKey && document.activeElement !== box) {
-      if (document.getElementById('main-screen').style.display !== 'none' && getTranscript()) sendMessage();
+    if(e.code==="Enter"){
+      if(document.getElementById("main-screen").style.display!=="none" && getInput()) sendMessage();
     }
+  });
+  box.addEventListener("keydown", e => {
+    if(e.code==="Enter" && !e.shiftKey){ e.preventDefault(); if(getInput()) sendMessage(); }
   });
 });
 </script>
