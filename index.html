@@ -31,6 +31,24 @@ body{font-family:'Segoe UI','Noto Sans Arabic',Tahoma,sans-serif;background:var(
 .profile-card .ppain{font-size:0.78rem;color:var(--warn);margin-top:2px;}
 button.primary{font-family:inherit;border-radius:8px;border:none;background:var(--accent);color:#fff;padding:13px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s;width:100%;}
 button.primary:hover{background:#5a52e0;}
+.section-divider{display:flex;align-items:center;gap:10px;color:var(--text2);font-size:0.75rem;letter-spacing:1.2px;}
+.section-divider::before,.section-divider::after{content:"";flex:1;height:1px;background:var(--border);}
+.form-input{font-family:inherit;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 13px;font-size:0.88rem;width:100%;outline:none;transition:border-color .2s;direction:rtl;}
+.form-input:focus{border-color:var(--accent);}
+select.form-input{cursor:pointer;}
+.real-client-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);transition:all .2s;}
+.real-client-toggle:hover{border-color:var(--accent);}
+.toggle-switch{width:36px;height:20px;border-radius:10px;background:var(--border);position:relative;flex-shrink:0;transition:background .2s;}
+.toggle-switch.on{background:var(--accent2);}
+.toggle-switch::after{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s;}
+.toggle-switch.on::after{left:19px;}
+.toggle-label{font-size:0.85rem;flex:1;}
+.toggle-sub{font-size:0.75rem;color:var(--text2);}
+#real-client-fields{display:none;flex-direction:column;gap:12px;}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;}
+.badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:0.75rem;border:1px solid var(--border);color:var(--text2);}
+.badge.highlight{border-color:var(--accent2);color:var(--accent2);background:rgba(0,212,170,.07);}
+.badge.warn{border-color:var(--warn);color:var(--warn);background:rgba(255,169,77,.07);}
 
 /* MAIN */
 #main-screen{flex:1;display:none;flex-direction:column;}
@@ -161,6 +179,54 @@ button.small.danger{background:var(--danger);border-color:var(--danger);color:#f
       <label>اختر العميل</label>
       <div id="profile-cards" style="display:flex;flex-direction:column;gap:9px;"></div>
     </div>
+    <div class="section-divider">أو تدرّب على عميل حقيقي</div>
+
+    <div class="real-client-toggle" id="real-toggle" onclick="toggleRealClient()">
+      <div class="toggle-switch" id="toggle-switch"></div>
+      <div>
+        <div class="toggle-label">أدخل بيانات عميل حجز معك على Calendly</div>
+        <div class="toggle-sub">يصير ملف العميل مخصص بناءً على إجاباته الفعلية</div>
+      </div>
+    </div>
+
+    <div id="real-client-fields">
+      <div class="field">
+        <label>الاسم الكامل للعميل</label>
+        <input type="text" class="form-input" id="rc-name" placeholder="مثال: محمد العنزي" />
+      </div>
+      <div class="field">
+        <label>هل هو مدير أو صاحب عمل؟ <span style="color:var(--text2);font-size:0.78rem;">(السؤال 1)</span></label>
+        <select class="form-input" id="rc-q1">
+          <option value="">اختر...</option>
+          <option value="ايه">نعم ✓</option>
+          <option value="لا">لا ✗</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>مستواه مع أدوات الذكاء الاصطناعي <span style="color:var(--text2);font-size:0.78rem;">(السؤال 2)</span></label>
+        <select class="form-input" id="rc-q2">
+          <option value="">اختر...</option>
+          <option value="مبتدئ">ما قد استعملها</option>
+          <option value="متوسط">بنى نظام واحد / جربها مرة</option>
+          <option value="متقدم">متقدم، بنى أنظمة كثيرة</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>هدفه بعد 6 أشهر <span style="color:var(--text2);font-size:0.78rem;">(السؤال 3)</span></label>
+        <input type="text" class="form-input" id="rc-q3" placeholder="اكتب إجابته كما هي..." />
+      </div>
+      <div class="field">
+        <label>استعداده للاستثمار <span style="color:var(--text2);font-size:0.78rem;">(السؤال 4)</span></label>
+        <select class="form-input" id="rc-q4">
+          <option value="">اختر...</option>
+          <option value="أقل من 3999">أقل من ٣٩٩٩ ريال ⚠️</option>
+          <option value="4000-9999">٤٠٠٠ – ٩٩٩٩ ريال</option>
+          <option value="10000-20000">١٠,٠٠٠ – ٢٠,٠٠٠ ريال</option>
+          <option value="20000+">٢٠,٠٠٠ ريال+ 🔥</option>
+        </select>
+      </div>
+    </div>
+
     <div class="field">
       <label>مستوى الصعوبة</label>
       <div class="difficulty-row">
@@ -464,9 +530,29 @@ let S = {
   tts: true,
   scores: { opening:0, discovery:0, pitch:0, closing:0, objections:0 },
   scoreCounts: { opening:0, discovery:0, pitch:0, closing:0, objections:0 },
-  hitLines: new Set(),   // "phaseId-lineIdx" keys
+  hitLines: new Set(),
   donePhases: new Set(),
+  realClient: null,  // filled from Calendly form if toggled on
 };
+
+let useRealClient = false;
+
+function toggleRealClient(){
+  useRealClient = !useRealClient;
+  const sw = document.getElementById("toggle-switch");
+  const fields = document.getElementById("real-client-fields");
+  sw.className = "toggle-switch" + (useRealClient ? " on" : "");
+  fields.style.display = useRealClient ? "flex" : "none";
+}
+
+function readRealClientForm(){
+  const name = document.getElementById("rc-name").value.trim();
+  const q1 = document.getElementById("rc-q1").value;
+  const q2 = document.getElementById("rc-q2").value;
+  const q3 = document.getElementById("rc-q3").value.trim();
+  const q4 = document.getElementById("rc-q4").value;
+  return { name: name || "العميل", q1, q2, q3, q4 };
+}
 
 // ═══════════════════════════════════════════════════
 //  KEYWORD DETECTION
@@ -858,7 +944,7 @@ function scColor(n){ return n>=70?"var(--green)":n>=40?"var(--warn)":"var(--dang
 //  RESET
 // ═══════════════════════════════════════════════════
 function resetApp(){
-  S.phaseIdx=0; S.turn=0; S.sessionOver=false;
+  S.phaseIdx=0; S.turn=0; S.sessionOver=false; S.realClient=null;
   S.scores={opening:0,discovery:0,pitch:0,closing:0,objections:0};
   S.scoreCounts={opening:0,discovery:0,pitch:0,closing:0,objections:0};
   S.hitLines=new Set(); S.donePhases=new Set();
@@ -866,35 +952,72 @@ function resetApp(){
   clearInput();
   document.getElementById("end-btn").disabled=false;
   document.getElementById("debrief-screen").style.display="none";
-  document.getElementById("main-screen").style.display="flex";
+  document.getElementById("setup-screen").style.display="flex";
+  document.getElementById("main-screen").style.display="none";
   window.speechSynthesis.cancel();
-  startSession();
 }
 
 // ═══════════════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════════════
 function startSession(){
+  // read real client if toggled
+  if(useRealClient){
+    S.realClient = readRealClientForm();
+  } else {
+    S.realClient = null;
+  }
+
   document.getElementById("setup-screen").style.display="none";
   const main = document.getElementById("main-screen");
   main.style.display="flex"; main.style.flexDirection="column";
 
   const profile = PROFILES[S.profileIdx];
-  // prospect card
-  document.getElementById("prospect-card").innerHTML = `
-    <div class="prospect-card">
+
+  // build prospect card — real client data takes priority
+  let cardHtml = "";
+  if(S.realClient){
+    const rc = S.realClient;
+    const budgetColor = rc.q4 === "أقل من 3999" ? "color:var(--danger)" : rc.q4 === "20000+" ? "color:var(--green)" : "color:var(--warn)";
+    const levelBadge = rc.q2 === "مبتدئ" ? "مبتدئ 🟡" : rc.q2 === "متقدم" ? "متقدم 🟢" : "متوسط 🔵";
+    const q1Warning = rc.q1 === "لا" ? `<div class="pc-row"><div class="pc-label"></div><div class="pc-val" style="color:var(--danger);font-size:0.78rem;">⚠️ ليس مدير/صاحب عمل — انتبه</div></div>` : "";
+    cardHtml = `<div class="prospect-card">
+      <div class="pc-row"><div class="pc-label">الاسم</div><div class="pc-val" style="font-weight:700">${rc.name}</div></div>
+      ${q1Warning}
+      <div class="pc-row"><div class="pc-label">مستواه التقني</div><div class="pc-val">${levelBadge}</div></div>
+      <div class="pc-row"><div class="pc-label">هدفه (6 أشهر)</div><div class="pc-val good" style="font-size:0.8rem">${rc.q3 || "—"}</div></div>
+      <div class="pc-row"><div class="pc-label">استعداد الدفع</div><div class="pc-val" style="${budgetColor};font-weight:700">${rc.q4 || "—"}</div></div>
+      <div class="pc-row"><div class="pc-label">الردود</div><div class="pc-val" style="font-size:0.78rem;color:var(--text2)">من بروفايل: ${profile.name}</div></div>
+    </div>`;
+  } else {
+    cardHtml = `<div class="prospect-card">
       <div class="pc-row"><div class="pc-label">الاسم</div><div class="pc-val" style="font-weight:700">${profile.name}</div></div>
       <div class="pc-row"><div class="pc-label">الدور</div><div class="pc-val">${profile.role}</div></div>
       <div class="pc-row"><div class="pc-label">ألمه</div><div class="pc-val warn">⚡ ${profile.pain}</div></div>
       <div class="pc-row"><div class="pc-label">هدفه</div><div class="pc-val good">◎ ${profile.goal}</div></div>
     </div>`;
+  }
+  document.getElementById("prospect-card").innerHTML = cardHtml;
 
   buildScriptPanel();
   updateScoreBars();
 
   // opening line from prospect
   const opening = profile.replies.opening[0];
-  setTimeout(() => { addMsg("prospect", opening); speak(opening); }, 300);
+  const clientName = S.realClient ? S.realClient.name : profile.name;
+  setTimeout(() => {
+    addMsg("prospect", opening);
+    speak(opening);
+    // coach hint for real clients
+    if(S.realClient && S.realClient.q3){
+      const hint = document.createElement("div");
+      hint.className = "eval-bubble";
+      hint.style.background = "rgba(0,212,170,.05)";
+      hint.style.borderColor = "rgba(0,212,170,.25)";
+      hint.innerHTML = `💡 <strong>تذكير:</strong> ${clientName} قال إنه يبي: <em>"${S.realClient.q3}"</em> — استخدم هذا في مرحلة الهدف والألم.`;
+      document.getElementById("messages").appendChild(hint);
+    }
+  }, 300);
 }
 
 // ═══════════════════════════════════════════════════
