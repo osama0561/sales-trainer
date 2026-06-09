@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>اتمتها — مدرب المبيعات</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --danger: #ff4d6d;
+      --warn: #ffa94d;
+      --text: #e8eaf6;
+      --text2: #9098c0;
+      --green: #40c97f;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Noto Sans Arabic', Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SETUP ── */
+    #setup-screen {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 20px; gap: 32px;
+    }
+    .setup-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 36px 40px;
+      width: 100%; max-width: 520px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+    .setup-card h2 { font-size: 1.5rem; color: var(--accent2); text-align: center; }
+    .setup-card p { font-size: 0.88rem; color: var(--text2); text-align: center; line-height: 1.7; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label { font-size: 0.9rem; color: var(--text2); }
+    .difficulty-row { display: flex; gap: 10px; }
+    .diff-btn {
+      flex: 1; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+      border: 2px solid var(--border); background: var(--surface2); color: var(--text2);
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .diff-btn.selected { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.1); }
+
+    select, button {
+      font-family: inherit; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--text); padding: 8px 14px;
+      cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+    }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    button.primary:hover { background: #5a52e0; }
+    button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── MAIN ── */
+    #main-screen { flex: 1; display: none; flex-direction: column; }
+    .top-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); gap: 16px;
+    }
+    .logo { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+    .logo span { color: var(--accent2); }
+    .stage-badge {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600;
+      background: rgba(108,99,255,0.2); color: var(--accent); border: 1px solid rgba(108,99,255,0.4);
+    }
+    .turn-counter { font-size: 0.85rem; color: var(--text2); }
+
+    .columns { flex: 1; display: grid; grid-template-columns: 1fr 340px; overflow: hidden; }
+    @media(max-width: 768px) {
+      .columns { grid-template-columns: 1fr; }
+      .coach-panel { border-right: none; border-top: 1px solid var(--border); max-height: 260px; }
+    }
+
+    /* ── CHAT ── */
+    .chat-col { display: flex; flex-direction: column; overflow: hidden; }
+    .messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
+    }
+    .message { display: flex; gap: 10px; align-items: flex-start; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    .message.prospect { flex-direction: row-reverse; }
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700;
+    }
+    .avatar.rep { background: rgba(0,212,170,0.2); color: var(--accent2); border: 1px solid rgba(0,212,170,0.4); }
+    .avatar.prospect { background: rgba(108,99,255,0.2); color: var(--accent); border: 1px solid rgba(108,99,255,0.4); }
+    .bubble { max-width: 75%; padding: 13px 16px; border-radius: 14px; line-height: 1.65; font-size: 0.97rem; }
+    .bubble.rep { background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.25); border-top-left-radius: 4px; }
+    .bubble.prospect {
+      background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
+      border-top-right-radius: 4px; text-align: right; direction: rtl;
+    }
+    .bubble-label { font-size: 0.75rem; color: var(--text2); margin-bottom: 5px; }
+
+    /* ── MIC ── */
+    .mic-area {
+      padding: 16px 20px; background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .transcript-box {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; min-height: 60px; font-size: 0.95rem; line-height: 1.6;
+      color: var(--text); direction: ltr; text-align: left; transition: border-color 0.2s;
+    }
+    .transcript-box.listening { border-color: var(--danger); }
+    .transcript-box.has-text { border-color: var(--accent2); }
+    .transcript-placeholder { color: var(--text2); font-style: italic; }
+    .mic-controls { display: flex; gap: 10px; align-items: center; }
+    #mic-btn {
+      width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--border);
+      background: var(--surface2); color: var(--text2);
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+      flex-shrink: 0; transition: all 0.2s; padding: 0; cursor: pointer;
+    }
+    #mic-btn.recording {
+      background: rgba(255,77,109,0.2); border-color: var(--danger); color: var(--danger);
+      animation: micPulse 1.2s infinite;
+    }
+    @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,0.4)} 50%{box-shadow:0 0 0 12px rgba(255,77,109,0)} }
+    #send-btn { flex: 1; padding: 14px; font-size: 1rem; }
+
+    /* ── COACH ── */
+    .coach-panel {
+      border-right: 1px solid var(--border); overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 16px; background: var(--surface);
+    }
+    .panel-title {
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--text2); padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .eval-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+    .eval-row { display: flex; flex-direction: column; gap: 4px; }
+    .eval-label { font-size: 0.78rem; color: var(--text2); }
+    .eval-value { font-size: 0.9rem; line-height: 1.55; }
+    .eval-value.good { color: var(--green); }
+    .eval-value.warn { color: var(--warn); }
+    .score-bar { display: flex; align-items: center; gap: 10px; }
+    .bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+    .bar-num { font-size: 0.85rem; font-weight: 700; min-width: 28px; text-align: left; }
+    .empty-coach { color: var(--text2); font-size: 0.88rem; text-align: center; padding: 20px 0; line-height: 1.9; }
+
+    /* ── DEBRIEF ── */
+    #debrief-screen {
+      display: none; flex: 1; overflow-y: auto; padding: 32px 20px;
+      flex-direction: column; align-items: center; gap: 28px;
+    }
+    .debrief-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 32px; width: 100%; max-width: 680px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .debrief-card h2 { font-size: 1.3rem; color: var(--accent2); text-align: center; }
+    .overall-score {
+      background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 12px; padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 6px;
+    }
+    .overall-score .num { font-size: 3.5rem; font-weight: 700; color: var(--accent); }
+    .overall-score .lbl { font-size: 0.9rem; color: var(--text2); }
+    .debrief-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .score-item {
+      background: var(--surface2); border-radius: 10px; padding: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .score-item .lbl { font-size: 0.82rem; color: var(--text2); }
+    .score-item .num { font-size: 2rem; font-weight: 700; }
+    .verdict-box { background: var(--surface2); border-radius: 10px; padding: 16px; line-height: 1.7; font-size: 0.95rem; }
+    .verdict-box strong { color: var(--accent2); }
+    .top-fix {
+      background: rgba(255,169,77,0.1); border: 1px solid rgba(255,169,77,0.3);
+      border-radius: 10px; padding: 14px; font-size: 0.92rem; line-height: 1.65;
+    }
+    .top-fix strong { color: var(--warn); }
+
+    /* ── TYPING ── */
+    .typing { display: flex; gap: 5px; align-items: center; padding: 6px 0; }
+    .typing span { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ SETUP ══ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <h2>اتمتها — مدرب المبيعات</h2>
+    <p>تدرّب على مكالمات المبيعات مع عميل سعودي افتراضي<br>ويقيّمك مدرب خفي بعد كل رد</p>
+
+    <div class="field">
+      <label>مستوى الصعوبة</label>
+      <div class="difficulty-row">
+        <button class="diff-btn selected" data-diff="easy">سهل</button>
+        <button class="diff-btn" data-diff="mid">متوسط</button>
+        <button class="diff-btn" data-diff="hard">صعب</button>
+      </div>
+    </div>
+
+    <button class="primary" id="start-btn">ابدأ الجلسة</button>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main-screen">
+  <div class="top-bar">
+    <div style="display:flex;gap:10px;align-items:center">
+      <span class="logo">اتمتها <span>●</span></span>
+      <span class="stage-badge" id="stage-badge">فتح</span>
+    </div>
+    <span class="turn-counter" id="turn-counter">الدور 1</span>
+    <div style="display:flex;gap:8px">
+      <button id="tts-toggle-btn">🔊</button>
+      <button class="danger" id="end-session-btn">انهاء الجلسة</button>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="chat-col">
+      <div class="messages" id="messages"></div>
+      <div class="mic-area">
+        <div class="transcript-box" id="transcript-box">
+          <span class="transcript-placeholder" id="transcript-placeholder">اضغط المايك وتكلم، أو اكتب ردك هنا...</span>
+        </div>
+        <div class="mic-controls">
+          <button id="mic-btn">🎙️</button>
+          <button class="primary" id="send-btn" disabled>إرسال</button>
+          <button id="clear-btn">🗑️</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="coach-panel">
+      <div class="panel-title">تقييم المدرب</div>
+      <div id="coach-content">
+        <div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DEBRIEF ══ -->
+<div id="debrief-screen">
+  <div class="debrief-card">
+    <h2>ملخص الجلسة</h2>
+    <div id="debrief-content"></div>
+    <button class="primary" onclick="resetApp()">جلسة جديدة</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  GROQ CONFIG
+// ══════════════════════════════════════════
+let GROQ_API_KEY = '';
+const GROQ_MODEL   = 'llama-3.3-70b-versatile'; // best Arabic quality on Groq
+
+// ══════════════════════════════════════════
+//  OFFER & SCRIPT
+// ══════════════════════════════════════════
+const OFFER = `
+المنتج: اتمتها — كورس + كوتشينج جماعي لتعلم الأتمتة والذكاء الاصطناعي للسعوديين
+السعر: 2000 دولار (دفعة واحدة) أو 300$/شهر مع ورشتين
+الجمهور المستهدف: سعوديون (مديرون، موظفون، رواد أعمال) يريدون توفير الوقت وبناء أنظمة أتمتة
+نقاط القيمة:
+- كوتشينج شخصي مع خبير سعودي يفهم ثقافتهم
+- ضمان 15 يوم: تبني workflow يشتغل بدلك أو ترد فلوسك + قهوة عربية
+- مجتمع سعودي، لا يهمنا آخر أداة بل الأداة التي توفر وقتك
+- 400+ شخص درسوا مع المدرب وأنجزوا مشاريع حقيقية
+- نادي محدود 30 شخص فقط
+البائع: أسامة الكلثامي — مختص أتمتة سعودي
+`;
+
+const SCRIPT = `
+خطوات سكريبت المبيعات:
+1. المقدمة: small talk ← تأطير المكالمة (سأسألك أسئلة، أشخّص وضعك، أعرضها عليك، وأنت تقرر)
+2. الاستكشاف:
+   أ. الدافع الأساسي: ما الذي خلاك تحجز هذه المكالمة؟
+   ب. الوضع الحالي: شغلك، استخدامك للذكاء الاصطناعي، مستوى راحتك
+   ج. الألم والمشكلة: أكبر تحدي، لماذا لم تحله، ماذا جربت، كم صار له
+   د. الوضع المرغوب: هدف 12 شهر، الدافع، التأثير على حياتك
+   ه. تكلفة عدم التغيير: ماذا لو لم يتغير شيء بعد 6 أشهر؟
+3. الانتقال: لخّص → "أنا واثق نقدر نساعدك لأن..." → اطلب إذنًا للعرض
+4. العرض: 3 أعمدة (الأساس → المهارات → المجتمع)، اسأل "ما الذي يلفت انتباهك؟"
+5. الالتزام: مقياس 1-10، عالج المخاوف
+6. الاستثمار: قدّم السعر (2000$)، اصمت بعدها
+7. الاعتراضات:
+   - الميزانية → عزّل، خطة دفع
+   - أحتاج أفكر → "القرارات تحتاج معلومات لا وقت"، اكتشف الاعتراض الحقيقي
+   - الصلاحية → حضّر الشريك أو أعد الموعد
+   - التوقيت → أعد التأطير، اكتشف الاعتراض الحقيقي
+   - إذا توقفت → الضمان (استرداد كامل 15 يوم)
+`;
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let state = {
+  difficulty: 'easy',
+  history: [],
+  turn: 0,
+  stage: 'opening',
+  sessionOver: false,
+  lastProspectText: '',
+};
+
+// ══════════════════════════════════════════
+//  SYSTEM PROMPT
+// ══════════════════════════════════════════
+function buildSystemPrompt() {
+  return `أنت محرك تدريب مبيعات بدورين لا يختلطان أبدًا:
+
+1. العميل المحتمل — شخص سعودي حقيقي ومشغول. تكلم فقط بالعامية السعودية النجدية. ردود قصيرة طبيعية. لا تكسر الشخصية أبدًا. لا تذكر الذكاء الاصطناعي أو السكريبت.
+
+2. المدرب الخفي — مقيّم يحلل ردود المندوب في JSON.
+
+العرض:
+${OFFER}
+
+سكريبت المبيعات الذي يتدرب عليه المندوب:
+${SCRIPT}
+
+مستوى الصعوبة: ${state.difficulty}
+- easy: يتقبل بسرعة، 1-2 اعتراضات خفيفة، يغلق لو المندوب كفء
+- mid: 3-4 اعتراضات حقيقية منها السعر و"خليني أفكر"، يحتاج تعامل جيد
+- hard: متشكك من البداية، يقاطع، يكدّس الاعتراضات، يضغط على السعر، يحاول ينهي المكالمة ("ابعث لي إيميل")، يغلق فقط لو المندوب ممتاز
+
+قوس المشتري: شك → استكشاف → اعتراضات → قرار
+تفاعل مع ما قاله المندوب فعلاً. عالج الاعتراض جيدًا → ليّن وتقدّم. عالجه ضعيفًا → ضغط أكثر. اعتراض واحد في كل مرة.
+
+نهاية الجلسة: عند إغلاق الصفقة، أو رفض العميل القاطع، أو تخلي المندوب.
+
+شكل الإخراج — JSON صالح فقط، بدون markdown بدون أي نص إضافي:
+
+دور عادي:
+{
+  "prospect_reply": "<عامية سعودية نجدية، في الشخصية>",
+  "stage": "<opening|discovery|objection|closing>",
+  "session_over": false,
+  "eval": {
+    "objection_in_play": "<الاعتراض الحالي أو null>",
+    "what_worked": "<ما نجح تحديدًا>",
+    "what_missed": "<ما فات تحديدًا>",
+    "script_adherence": <0-100>,
+    "tonality": "not_measured"
+  }
+}
+
+عند session_over: true أضف أيضًا:
+"debrief": {
+  "overall_score": <0-100>,
+  "discovery": <0-100>,
+  "objection_handling": <0-100>,
+  "closing": <0-100>,
+  "top_fix": "<أهم شيء يغيّره في الجلسة القادمة>",
+  "verdict": "<هل كان سيشتري؟ لماذا؟>"
+}
+
+تحذيرات:
+- prospect_reply دائمًا بالعامية السعودية النجدية في الشخصية
+- لا تسرّب التقييم في رد العميل أبدًا
+- التزم بمستوى الصعوبة حتى لو المندوب يصارع
+- JSON يجب أن يكون صالحًا`.trim();
+}
+
+// ══════════════════════════════════════════
+//  GROQ API CALL
+// ══════════════════════════════════════════
+async function callGroq(userMessage) {
+  const messages = [
+    { role: 'system', content: buildSystemPrompt() },
+    ...state.history,
+    { role: 'user', content: userMessage }
+  ];
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: 800,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Groq error ${res.status}: ${err}`);
+  }
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
+
+// ══════════════════════════════════════════
+//  PARSE JSON
+// ══════════════════════════════════════════
+function parseResponse(raw) {
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('No JSON in response');
+  return JSON.parse(raw.slice(start, end + 1));
+}
+
+// ══════════════════════════════════════════
+//  UI
+// ══════════════════════════════════════════
+const stageNames = { opening: 'فتح', discovery: 'استكشاف', objection: 'اعتراضات', closing: 'إغلاق' };
+
+function addMessage(role, text) {
+  const c = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = `message ${role}`;
+  d.innerHTML = `
+    <div class="avatar ${role}">${role === 'rep' ? 'أ' : 'ع'}</div>
+    <div class="bubble ${role}">
+      <div class="bubble-label">${role === 'rep' ? 'أنت (المندوب)' : 'العميل'}</div>
+      ${text}
+    </div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'message prospect'; d.id = 'typing-indicator';
+  d.innerHTML = `<div class="avatar prospect">ع</div><div class="bubble prospect"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function removeTyping() { document.getElementById('typing-indicator')?.remove(); }
+
+function updateStage(s) {
+  state.stage = s;
+  document.getElementById('stage-badge').textContent = stageNames[s] || s;
+}
+function updateTurn() { document.getElementById('turn-counter').textContent = `الدور ${state.turn}`; }
+
+function scoreColor(n) { return n >= 75 ? '#40c97f' : n >= 50 ? '#ffa94d' : '#ff4d6d'; }
+
+function renderEval(ev) {
+  const a = ev.script_adherence ?? 0;
+  document.getElementById('coach-content').innerHTML = `
+    <div class="eval-card">
+      ${ev.objection_in_play ? `<div class="eval-row"><div class="eval-label">الاعتراض الحالي</div><div class="eval-value warn">⚡ ${ev.objection_in_play}</div></div>` : ''}
+      <div class="eval-row"><div class="eval-label">ما نجح</div><div class="eval-value good">✓ ${ev.what_worked || '—'}</div></div>
+      <div class="eval-row"><div class="eval-label">ما فات</div><div class="eval-value warn">✗ ${ev.what_missed || '—'}</div></div>
+      <div class="eval-row">
+        <div class="eval-label">الالتزام بالسكريبت</div>
+        <div class="score-bar">
+          <div class="bar-bg"><div class="bar-fill" style="width:${a}%;background:${scoreColor(a)}"></div></div>
+          <div class="bar-num" style="color:${scoreColor(a)}">${a}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════
+let ttsEnabled = true;
+function speak(text) {
+  if (!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ar-SA'; u.rate = 0.95;
+  const v = window.speechSynthesis.getVoices().find(x => x.lang.startsWith('ar'));
+  if (v) u.voice = v;
+  window.speechSynthesis.speak(u);
+}
+
+// ══════════════════════════════════════════
+//  SPEECH RECOGNITION
+// ══════════════════════════════════════════
+let recognition = null, isRecording = false, finalTranscript = '';
+
+function setupRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { document.getElementById('mic-btn').disabled = true; return; }
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'ar-SA';
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalTranscript += t + ' ';
+      else interim += t;
+    }
+    const box = document.getElementById('transcript-box');
+    const display = (finalTranscript + interim).trim();
+    if (display) {
+      document.getElementById('transcript-placeholder').style.display = 'none';
+      const tn = box.childNodes[0];
+      tn && tn.nodeType === 3 ? (tn.textContent = display) : box.insertBefore(document.createTextNode(display), document.getElementById('transcript-placeholder'));
+    }
+    box.className = 'transcript-box has-text';
+    document.getElementById('send-btn').disabled = false;
+  };
+  recognition.onerror = (e) => { if (e.error !== 'no-speech') stopRecording(); };
+  recognition.onend = () => { if (isRecording) recognition.start(); };
+}
+
+function startRecording() {
+  if (!recognition) return;
+  finalTranscript = '';
+  const box = document.getElementById('transcript-box');
+  box.innerHTML = '<span class="transcript-placeholder" id="transcript-placeholder">تسجيل...</span>';
+  box.className = 'transcript-box listening';
+  document.getElementById('send-btn').disabled = true;
+  isRecording = true;
+  document.getElementById('mic-btn').className = 'recording';
+  document.getElementById('mic-btn').textContent = '⏹';
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  try { recognition?.stop(); } catch(e){}
+  document.getElementById('mic-btn').className = '';
+  document.getElementById('mic-btn').textContent = '🎙️';
+  const text = finalTranscript.trim();
+  const box = document.getElementById('transcript-box');
+  if (text) {
+    box.className = 'transcript-box has-text';
+    document.getElementById('send-btn').disabled = false;
+  } else {
+    box.className = 'transcript-box';
+    box.innerHTML = '<span class="transcript-placeholder" id="transcript-placeholder">اضغط المايك وتكلم، أو اكتب ردك هنا...</span>';
+    document.getElementById('send-btn').disabled = true;
+  }
+}
+
+function getTranscript() {
+  return document.getElementById('transcript-box').innerText
+    .replace('اضغط المايك وتكلم، أو اكتب ردك هنا...', '').replace('تسجيل...', '').trim();
+}
+
+function clearTranscript() {
+  finalTranscript = '';
+  const box = document.getElementById('transcript-box');
+  box.className = 'transcript-box';
+  box.innerHTML = '<span class="transcript-placeholder" id="transcript-placeholder">اضغط المايك وتكلم، أو اكتب ردك هنا...</span>';
+  document.getElementById('send-btn').disabled = true;
+}
+
+// ══════════════════════════════════════════
+//  SEND
+// ══════════════════════════════════════════
+async function sendMessage() {
+  if (state.sessionOver) return;
+  const text = getTranscript();
+  if (!text) return;
+  if (isRecording) stopRecording();
+
+  addMessage('rep', text);
+  clearTranscript();
+  document.getElementById('send-btn').disabled = true;
+  state.history.push({ role: 'user', content: text });
+  state.turn++;
+  updateTurn();
+  showTyping();
+
+  try {
+    const raw = await callGroq(text);
+    removeTyping();
+    const parsed = parseResponse(raw);
+    state.history.push({ role: 'assistant', content: raw });
+
+    if (parsed.prospect_reply) {
+      addMessage('prospect', parsed.prospect_reply);
+      state.lastProspectText = parsed.prospect_reply;
+      speak(parsed.prospect_reply);
+    }
+    if (parsed.stage) updateStage(parsed.stage);
+    if (parsed.eval) renderEval(parsed.eval);
+    if (parsed.session_over && parsed.debrief) {
+      state.sessionOver = true;
+      setTimeout(() => showDebrief(parsed.debrief), 1500);
+    }
+  } catch(e) {
+    removeTyping();
+    addMessage('prospect', `[خطأ: ${e.message}]`);
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════════════
+//  DEBRIEF
+// ══════════════════════════════════════════
+function showDebrief(d) {
+  document.getElementById('main-screen').style.display = 'none';
+  document.getElementById('debrief-screen').style.display = 'flex';
+  const scores = [
+    { label: 'الاستكشاف', val: d.discovery },
+    { label: 'الاعتراضات', val: d.objection_handling },
+    { label: 'الإغلاق', val: d.closing },
+  ];
+  document.getElementById('debrief-content').innerHTML = `
+    <div class="overall-score">
+      <div class="num">${d.overall_score}</div>
+      <div class="lbl">النتيجة الإجمالية / 100</div>
+    </div>
+    <div class="debrief-scores">
+      ${scores.map(s => `
+        <div class="score-item">
+          <div class="lbl">${s.label}</div>
+          <div class="num" style="color:${scoreColor(s.val)}">${s.val}</div>
+          <div class="bar-bg" style="height:5px;border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${s.val}%;background:${scoreColor(s.val)};border-radius:3px"></div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="top-fix"><strong>الأهم لتحسينه:</strong><br>${d.top_fix || '—'}</div>
+    <div class="verdict-box"><strong>الحكم:</strong> ${d.verdict || '—'}</div>`;
+}
+
+// ══════════════════════════════════════════
+//  END SESSION
+// ══════════════════════════════════════════
+async function endSessionManually() {
+  if (state.sessionOver) return;
+  state.sessionOver = true;
+  if (isRecording) stopRecording();
+  showTyping();
+  document.getElementById('end-session-btn').disabled = true;
+  try {
+    const raw = await callGroq('[SYSTEM: المندوب ينهي الجلسة. قدّم التقييم النهائي مع debrief كأن session_over: true. أخرج JSON فقط.]');
+    removeTyping();
+    const parsed = parseResponse(raw);
+    showDebrief(parsed.debrief || { overall_score: 0, discovery: 0, objection_handling: 0, closing: 0, top_fix: 'انتهت الجلسة مبكرًا', verdict: 'لم تكتمل' });
+  } catch(e) {
+    removeTyping();
+    showDebrief({ overall_score: 0, discovery: 0, objection_handling: 0, closing: 0, top_fix: 'خطأ في الاتصال', verdict: '—' });
+  }
+}
+
+// ══════════════════════════════════════════
+//  RESET
+// ══════════════════════════════════════════
+function resetApp() {
+  state.history = []; state.turn = 0; state.stage = 'opening'; state.sessionOver = false;
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('coach-content').innerHTML = '<div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>';
+  clearTranscript();
+  document.getElementById('end-session-btn').disabled = false;
+  updateStage('opening'); updateTurn();
+  document.getElementById('debrief-screen').style.display = 'none';
+  document.getElementById('main-screen').style.display = 'flex';
+  window.speechSynthesis.cancel();
+  startSession();
+}
+
+// ══════════════════════════════════════════
+//  START
+// ══════════════════════════════════════════
+async function startSession() {
+  document.getElementById('setup-screen').style.display = 'none';
+  const main = document.getElementById('main-screen');
+  main.style.display = 'flex'; main.style.flexDirection = 'column';
+  showTyping();
+  try {
+    const raw = await callGroq('[SESSION_START] أنت العميل. ابدأ المكالمة بشكل طبيعي كأنك رددت على مكالمة مبيعات. رد قصير بالعامية النجدية. أخرج JSON فقط.');
+    removeTyping();
+    const parsed = parseResponse(raw);
+    if (parsed.prospect_reply) {
+      addMessage('prospect', parsed.prospect_reply);
+      state.lastProspectText = parsed.prospect_reply;
+      speak(parsed.prospect_reply);
+    }
+    if (parsed.stage) updateStage(parsed.stage);
+    state.history.push({ role: 'assistant', content: raw });
+  } catch(e) {
+    removeTyping();
+    addMessage('prospect', `[خطأ في الاتصال بـ Groq: ${e.message}]`);
+  }
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  // load key from server env (never exposed in source)
+  try {
+    const r = await fetch('/api/config');
+    const d = await r.json();
+    GROQ_API_KEY = d.key;
+  } catch(e) { console.warn('Could not load config', e); }
+
+  setupRecognition();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.difficulty = btn.dataset.diff;
+    });
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startSession);
+  document.getElementById('mic-btn').addEventListener('click', () => isRecording ? stopRecording() : startRecording());
+  document.getElementById('send-btn').addEventListener('click', sendMessage);
+  document.getElementById('clear-btn').addEventListener('click', () => { if (isRecording) stopRecording(); clearTranscript(); });
+  document.getElementById('tts-toggle-btn').addEventListener('click', () => {
+    ttsEnabled = !ttsEnabled;
+    document.getElementById('tts-toggle-btn').textContent = ttsEnabled ? '🔊' : '🔇';
+    if (!ttsEnabled) window.speechSynthesis.cancel();
+    else if (state.lastProspectText) speak(state.lastProspectText);
+  });
+  document.getElementById('end-session-btn').addEventListener('click', endSessionManually);
+
+  // make transcript editable for typing
+  const box = document.getElementById('transcript-box');
+  box.contentEditable = true;
+  box.addEventListener('input', () => {
+    const text = box.innerText.replace('اضغط المايك وتكلم، أو اكتب ردك هنا...', '').trim();
+    box.className = text ? 'transcript-box has-text' : 'transcript-box';
+    document.getElementById('send-btn').disabled = !text;
+  });
+  box.addEventListener('focus', () => {
+    if (box.innerText.trim() === 'اضغط المايك وتكلم، أو اكتب ردك هنا...') box.innerHTML = '';
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const tag = document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT') return;
+    if (e.code === 'Space' && !e.ctrlKey && !e.metaKey && document.activeElement !== box) {
+      e.preventDefault();
+      if (document.getElementById('main-screen').style.display !== 'none')
+        isRecording ? stopRecording() : startRecording();
+    }
+    if (e.code === 'Enter' && !e.shiftKey && document.activeElement !== box) {
+      if (document.getElementById('main-screen').style.display !== 'none' && getTranscript()) sendMessage();
+    }
+  });
+});
+</script>
+</body>
+</html>
