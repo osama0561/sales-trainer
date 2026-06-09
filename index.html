@@ -611,6 +611,95 @@ const PHASE_ORDER = PHASES.map(p => p.id);
 // ═══════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════
+let STEPFUN_API_KEY = '';
+
+// fetch key on load
+(async () => {
+  try {
+    const r = await fetch('/api/config');
+    const d = await r.json();
+    STEPFUN_API_KEY = d.key || '';
+  } catch(e) {}
+})();
+
+async function callStepfun(messages) {
+  const res = await fetch('https://api.stepfun.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${STEPFUN_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'step-1-flash',
+      messages,
+      max_tokens: 120,
+      temperature: 0.85,
+    }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const d = await res.json();
+  return d.choices[0].message.content.trim();
+}
+
+// Build conversation history for AI context
+let conversationHistory = [];
+
+function buildProspectSystemPrompt() {
+  const profile = PROFILES[S.profileIdx];
+  const phase = PHASES[S.phaseIdx];
+  const isHard = S.difficulty === 'hard';
+  return `أنت ${profile.name}، ${profile.role}.
+ألمك الرئيسي: ${profile.pain}
+هدفك: ${profile.goal}
+مستواك مع الذكاء الاصطناعي: ${profile.aiLevel}
+ميزانيتك: ${profile.budget} ريال
+
+حجزت مكالمة مع مدرب يعلّم الأتمتة والذكاء الاصطناعي. أنت مهتم لكن لم تقرر بعد.
+المرحلة الحالية في المحادثة: ${phase.label}
+
+قواعد الرد:
+- رد بجملة أو جملتين فقط بالعربي السعودي النجدي
+- كن طبيعياً، مو رسمي
+- ردودك تعكس ألمك وهدفك بشكل حقيقي
+- ${isHard ? 'أظهر تشككاً وتحفظاً أكثر، اطرح أسئلة صعبة' : 'كن منفتحاً ولكن لا تكن سهلاً جداً'}
+- لا تقل أنك AI
+- لا تقبل مباشرة، دائماً عندك سؤال أو تحفظ بسيط`;
+}
+
+async function getAIProspectReply(repText) {
+  // add rep message to history
+  conversationHistory.push({ role: 'user', content: repText });
+
+  const messages = [
+    { role: 'system', content: buildProspectSystemPrompt() },
+    ...conversationHistory.slice(-10), // last 10 turns for context
+  ];
+
+  try {
+    const reply = await callStepfun(messages);
+    // add prospect reply to history
+    conversationHistory.push({ role: 'assistant', content: reply });
+    return reply;
+  } catch (e) {
+    console.error('Stepfun error:', e);
+    // fallback to scripted reply
+    return getScriptedFallback(PHASES[S.phaseIdx].id);
+  }
+}
+
+function getScriptedFallback(phaseId) {
+  const profile = PROFILES[S.profileIdx];
+  const replies = S.difficulty === 'hard' ? profile.hard_replies : profile.replies;
+  const bucketMap = {
+    opening:'opening', discovery_motivation:'discovery', discovery_situation:'discovery',
+    discovery_pain:'pain_deep', discovery_desire:'desire', discovery_cost:'cost',
+    transition:'transition', pitch:'pitch', commitment:'commitment',
+    investment:'investment', objections:'objection_price',
+  };
+  const bucket = replies[bucketMap[phaseId]] || replies['transition'];
+  return bucket[Math.floor(Math.random() * bucket.length)];
+}
+
 let S = {
   profileIdx: 0,
   difficulty: "easy",
@@ -857,6 +946,22 @@ function updateScoreBars(){
 // ═══════════════════════════════════════════════════
 //  UI — MESSAGES
 // ═══════════════════════════════════════════════════
+let _typingCounter = 0;
+function showTyping(){
+  const id = 'typing-' + (++_typingCounter);
+  const c = document.getElementById("messages");
+  const d = document.createElement("div");
+  d.className = "message prospect"; d.id = id;
+  d.innerHTML = `<div class="avatar prospect">ع</div>
+    <div class="bubble prospect" style="padding:12px 18px;letter-spacing:3px;color:var(--text2)">●●●</div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+  return id;
+}
+function removeTyping(id){
+  const el = document.getElementById(id);
+  if(el) el.remove();
+}
+
 function addMsg(role, text){
   const c = document.getElementById("messages");
   const d = document.createElement("div");
@@ -983,17 +1088,18 @@ function sendMessage(){
   refreshScriptPanel();
   updateScoreBars();
 
-  // prospect always replies — natural conversation
-  const phaseId = PHASES[S.phaseIdx].id;
-  const reply = getProspectReply(text, phaseId);
-  setTimeout(() => {
+  // show typing indicator
+  const typingId = showTyping();
+
+  // prospect replies via AI
+  getAIProspectReply(text).then(reply => {
+    removeTyping(typingId);
     addMsg("prospect", reply);
     speak(reply);
-    // show eval only when phase advances or at question boundaries
     if(evalResult.advanced || evalResult.score >= 30){
       addEval(evalResult);
     }
-  }, 350);
+  });
 }
 
 // ═══════════════════════════════════════════════════
@@ -1048,6 +1154,7 @@ function resetApp(){
   S.scoreCounts={opening:0,discovery:0,pitch:0,closing:0,objections:0};
   S.hitLines=new Set(); S.donePhases=new Set();
   S_phaseBuffer=""; S_lastEvalPhase="";
+  conversationHistory = [];
   document.getElementById("messages").innerHTML="";
   clearInput();
   document.getElementById("end-btn").disabled=false;
@@ -1061,6 +1168,8 @@ function resetApp(){
 //  START
 // ═══════════════════════════════════════════════════
 function startSession(){
+  conversationHistory = [];
+  S_phaseBuffer=""; S_lastEvalPhase="";
   document.getElementById("setup-screen").style.display="none";
   const main = document.getElementById("main-screen");
   main.style.display="flex"; main.style.flexDirection="column";
