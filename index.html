@@ -201,6 +201,21 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .profile-card {
+      border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px;
+      cursor: pointer; background: var(--surface2); transition: all 0.2s;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .profile-card:hover { border-color: var(--accent); }
+    .profile-card.selected { border-color: var(--accent2); background: rgba(0,212,170,0.07); }
+    .profile-card .pname { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+    .profile-card .pbio { font-size: 0.82rem; color: var(--text2); line-height: 1.55; }
+    .profile-card .ppain { font-size: 0.8rem; color: var(--warn); margin-top: 2px; }
+    .prospect-label {
+      font-size: 0.78rem; color: var(--text2); padding: 4px 0 8px;
+      border-bottom: 1px solid var(--border); margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
@@ -210,6 +225,11 @@
   <div class="setup-card">
     <h2>اتمتها — مدرب المبيعات</h2>
     <p>تدرّب على مكالمات المبيعات مع عميل سعودي افتراضي<br>ويقيّمك مدرب خفي بعد كل رد</p>
+
+    <div class="field">
+      <label>اختر العميل</label>
+      <div id="profile-cards" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
 
     <div class="field">
       <label>مستوى الصعوبة</label>
@@ -254,7 +274,9 @@
     </div>
 
     <div class="coach-panel">
-      <div class="panel-title">تقييم المدرب</div>
+      <div class="panel-title">ملف العميل</div>
+      <div id="prospect-info"></div>
+      <div class="panel-title" style="margin-top:8px">تقييم المدرب</div>
       <div id="coach-content">
         <div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>
       </div>
@@ -276,7 +298,7 @@
 //  GROQ CONFIG
 // ══════════════════════════════════════════
 let GROQ_API_KEY = '';
-const GROQ_MODEL   = 'llama-3.3-70b-versatile'; // best Arabic quality on Groq
+const GROQ_MODEL   = 'llama-3.1-8b-instant';
 
 // ══════════════════════════════════════════
 //  OFFER & SCRIPT
@@ -320,6 +342,7 @@ const SCRIPT = `
 // ══════════════════════════════════════════
 let state = {
   difficulty: 'easy',
+  profileIndex: 0,
   history: [],
   turn: 0,
   stage: 'opening',
@@ -330,60 +353,74 @@ let state = {
 // ══════════════════════════════════════════
 //  SYSTEM PROMPT
 // ══════════════════════════════════════════
+const PROSPECT_PROFILES = [
+  {
+    name: 'خالد العتيبي',
+    bio: 'مدير تشغيل في شركة لوجستية بالرياض، 34 سنة، مشغول دايمًا، شاف منشور عن الأتمتة وتواصل. عنده فريق 8 أشخاص يضيعون وقتهم في تقارير يدوية. ما جرّب أي أداة ذكاء اصطناعي بجدية.',
+    pain: 'يخسر 3 ساعات يوميًا على تقارير يدوية، يحس فريقه مو منتج',
+    goal: 'يوفر الوقت ويزيد إنتاجية الفريق',
+    objections: ['السعر عالي'، 'محتاج أفكر'، 'ما عندي وقت أتعلم'],
+  },
+  {
+    name: 'سارة القحطاني',
+    bio: 'صاحبة متجر إلكتروني للعباءات، 28 سنة، تشغّل كل شيء بنفسها. سمعت عن الأتمتة من صاحبتها. خايفة التقنية معقدة عليها.',
+    pain: 'ترد على استفسارات العملاء يدويًا ليل نهار، تعبت',
+    goal: 'تنام بدون ما تفكر في الرد على الرسائل',
+    objections: ['ما أعرف تقنية'، 'ابعثي لي معلومات'، 'بسألها صاحبتي أول'],
+  },
+  {
+    name: 'فهد الشمري',
+    bio: 'موظف حكومي، 40 سنة، مدير قسم. جاء من إلحاح زميله. متشكك، يحس إن الذكاء الاصطناعي "هايب" ومو لأمثاله.',
+    pain: 'قسمه متأخر في تبني التقنية، مديره يضغط عليه',
+    goal: 'يثبت لمديره إنه يواكب التطور',
+    objections: ['عندنا نظام خاص ما يتكامل'، 'محتاج موافقة الإدارة'، 'جرّبنا قبل وما نجح'],
+  },
+];
+
 function buildSystemPrompt() {
-  return `أنت محرك تدريب مبيعات بدورين لا يختلطان أبدًا:
+  const profile = PROSPECT_PROFILES[state.profileIndex];
+  return `You are a sales training simulation. You play TWO roles that NEVER mix.
 
-1. العميل المحتمل — شخص سعودي حقيقي ومشغول. تكلم فقط بالعامية السعودية النجدية. ردود قصيرة طبيعية. لا تكسر الشخصية أبدًا. لا تذكر الذكاء الاصطناعي أو السكريبت.
+ROLE 1 — PROSPECT (أولوية قصوى):
+You ARE ${profile.name}. Stay in character 100%. Never break.
+Background: ${profile.bio}
+Core pain: ${profile.pain}
+Goal: ${profile.goal}
 
-2. المدرب الخفي — مقيّم يحلل ردود المندوب في JSON.
+SPEAK ONLY in Saudi Najdi colloquial Arabic (عامية نجدية). Short natural replies like a real busy person. Never mention AI, scripts, or training. React realistically to what the rep says.
 
-العرض:
+ROLE 2 — HIDDEN COACH:
+Evaluate the rep's message silently inside the JSON eval field.
+
+OFFER being sold:
 ${OFFER}
 
-سكريبت المبيعات الذي يتدرب عليه المندوب:
+SALES SCRIPT the rep is practicing:
 ${SCRIPT}
 
-مستوى الصعوبة: ${state.difficulty}
-- easy: يتقبل بسرعة، 1-2 اعتراضات خفيفة، يغلق لو المندوب كفء
-- mid: 3-4 اعتراضات حقيقية منها السعر و"خليني أفكر"، يحتاج تعامل جيد
-- hard: متشكك من البداية، يقاطع، يكدّس الاعتراضات، يضغط على السعر، يحاول ينهي المكالمة ("ابعث لي إيميل")، يغلق فقط لو المندوب ممتاز
+DIFFICULTY: ${state.difficulty}
+- easy: opens up fast, 1-2 mild objections, closes if rep is competent
+- mid: 3-4 real objections including price + "let me think", needs solid handling
+- hard: skeptical from turn 1, interrupts, stacks objections, tries to end call early, only closes if rep is excellent
 
-قوس المشتري: شك → استكشاف → اعتراضات → قرار
-تفاعل مع ما قاله المندوب فعلاً. عالج الاعتراض جيدًا → ليّن وتقدّم. عالجه ضعيفًا → ضغط أكثر. اعتراض واحد في كل مرة.
+Buyer arc: skepticism → discovery → objections → decision
+React to what the rep ACTUALLY said. Good handling → soften and advance. Weak handling → push harder. ONE objection at a time.
 
-نهاية الجلسة: عند إغلاق الصفقة، أو رفض العميل القاطع، أو تخلي المندوب.
+End session when: deal closes, hard decline, or rep abandons.
 
-شكل الإخراج — JSON صالح فقط، بدون markdown بدون أي نص إضافي:
+OUTPUT: valid JSON only — no markdown, no extra text, nothing outside the JSON.
 
-دور عادي:
-{
-  "prospect_reply": "<عامية سعودية نجدية، في الشخصية>",
-  "stage": "<opening|discovery|objection|closing>",
-  "session_over": false,
-  "eval": {
-    "objection_in_play": "<الاعتراض الحالي أو null>",
-    "what_worked": "<ما نجح تحديدًا>",
-    "what_missed": "<ما فات تحديدًا>",
-    "script_adherence": <0-100>,
-    "tonality": "not_measured"
-  }
-}
+Normal turn:
+{"prospect_reply":"<نجدية>","stage":"<opening|discovery|objection|closing>","session_over":false,"eval":{"objection_in_play":"<or null>","what_worked":"<specific>","what_missed":"<specific>","script_adherence":<0-100>,"tonality":"not_measured"}}
 
-عند session_over: true أضف أيضًا:
-"debrief": {
-  "overall_score": <0-100>,
-  "discovery": <0-100>,
-  "objection_handling": <0-100>,
-  "closing": <0-100>,
-  "top_fix": "<أهم شيء يغيّره في الجلسة القادمة>",
-  "verdict": "<هل كان سيشتري؟ لماذا؟>"
-}
+When session_over true, add debrief:
+{"prospect_reply":"...","stage":"closing","session_over":true,"eval":{...},"debrief":{"overall_score":<0-100>,"discovery":<0-100>,"objection_handling":<0-100>,"closing":<0-100>,"top_fix":"<one thing>","verdict":"<would they have bought? why>"}}
 
-تحذيرات:
-- prospect_reply دائمًا بالعامية السعودية النجدية في الشخصية
-- لا تسرّب التقييم في رد العميل أبدًا
-- التزم بمستوى الصعوبة حتى لو المندوب يصارع
-- JSON يجب أن يكون صالحًا`.trim();
+RULES:
+- prospect_reply ALWAYS in Saudi Najdi Arabic, in character
+- NEVER leak coaching into prospect_reply
+- Stay in difficulty level no matter what
+- Output ONLY the JSON object, nothing else`.trim();
 }
 
 // ══════════════════════════════════════════
@@ -670,6 +707,7 @@ function resetApp() {
   state.history = []; state.turn = 0; state.stage = 'opening'; state.sessionOver = false;
   document.getElementById('messages').innerHTML = '';
   document.getElementById('coach-content').innerHTML = '<div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>';
+  document.getElementById('prospect-info').innerHTML = '';
   clearTranscript();
   document.getElementById('end-session-btn').disabled = false;
   updateStage('opening'); updateTurn();
@@ -686,6 +724,18 @@ async function startSession() {
   document.getElementById('setup-screen').style.display = 'none';
   const main = document.getElementById('main-screen');
   main.style.display = 'flex'; main.style.flexDirection = 'column';
+
+  // show prospect name + info card
+  const profile = PROSPECT_PROFILES[state.profileIndex];
+  document.getElementById('stage-badge').textContent = profile.name;
+  document.getElementById('prospect-info').innerHTML = `
+    <div class="eval-card" style="margin-bottom:4px">
+      <div class="eval-row"><div class="eval-label">الاسم</div><div class="eval-value" style="font-weight:700">${profile.name}</div></div>
+      <div class="eval-row"><div class="eval-label">الخلفية</div><div class="eval-value" style="font-size:0.82rem">${profile.bio}</div></div>
+      <div class="eval-row"><div class="eval-label">الألم الأساسي</div><div class="eval-value warn">⚡ ${profile.pain}</div></div>
+      <div class="eval-row"><div class="eval-label">هدفه</div><div class="eval-value good">◎ ${profile.goal}</div></div>
+    </div>`;
+
   showTyping();
   try {
     const raw = await callGroq('[SESSION_START] أنت العميل. ابدأ المكالمة بشكل طبيعي كأنك رددت على مكالمة مبيعات. رد قصير بالعامية النجدية. أخرج JSON فقط.');
@@ -714,6 +764,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const d = await r.json();
     GROQ_API_KEY = d.key;
   } catch(e) { console.warn('Could not load config', e); }
+
+  // build prospect profile cards
+  const profileContainer = document.getElementById('profile-cards');
+  PROSPECT_PROFILES.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'profile-card' + (i === 0 ? ' selected' : '');
+    card.innerHTML = `<div class="pname">${p.name}</div><div class="pbio">${p.bio}</div><div class="ppain">⚡ ${p.pain}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.profileIndex = i;
+    });
+    profileContainer.appendChild(card);
+  });
 
   setupRecognition();
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
