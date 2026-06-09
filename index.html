@@ -983,28 +983,17 @@ function sendMessage(){
   refreshScriptPanel();
   updateScoreBars();
 
-  if(evalResult.prospectShouldReply || evalResult.advanced){
-    // show eval summary then prospect reply
-    addEval(evalResult);
-    const phaseId = PHASES[S.phaseIdx].id;
-    const reply = getProspectReply(text, phaseId);
-    setTimeout(() => {
-      addMsg("prospect", reply);
-      speak(reply);
-    }, 350);
-  } else {
-    // rep is still building up the same phase — show a subtle "keep going" indicator
-    const c = document.getElementById("messages");
-    const hint = document.createElement("div");
-    hint.style.cssText = "font-size:0.72rem;color:var(--text2);text-align:center;padding:2px 0;opacity:0.6;";
-    hint.textContent = "↩ العميل ينتظر…";
-    hint.id = "wait-hint";
-    // replace previous wait hint if exists
-    const prev = document.getElementById("wait-hint");
-    if(prev) prev.remove();
-    c.appendChild(hint);
-    c.scrollTop = c.scrollHeight;
-  }
+  // prospect always replies — natural conversation
+  const phaseId = PHASES[S.phaseIdx].id;
+  const reply = getProspectReply(text, phaseId);
+  setTimeout(() => {
+    addMsg("prospect", reply);
+    speak(reply);
+    // show eval only when phase advances or at question boundaries
+    if(evalResult.advanced || evalResult.score >= 30){
+      addEval(evalResult);
+    }
+  }, 350);
 }
 
 // ═══════════════════════════════════════════════════
