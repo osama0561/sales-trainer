@@ -78,10 +78,13 @@
     }
     .turn-counter { font-size: 0.85rem; color: var(--text2); }
 
-    .columns { flex: 1; display: grid; grid-template-columns: 1fr 340px; overflow: hidden; }
+    .columns { flex: 1; display: grid; grid-template-columns: 300px 1fr 300px; overflow: hidden; }
+    @media(max-width: 1024px) {
+      .columns { grid-template-columns: 260px 1fr 260px; }
+    }
     @media(max-width: 768px) {
       .columns { grid-template-columns: 1fr; }
-      .coach-panel { border-right: none; border-top: 1px solid var(--border); max-height: 260px; }
+      .script-panel, .coach-panel { border-top: 1px solid var(--border); border-right: none; border-left: none; max-height: 240px; }
     }
 
     /* ── CHAT ── */
@@ -133,6 +136,55 @@
     }
     @keyframes micPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,0.4)} 50%{box-shadow:0 0 0 12px rgba(255,77,109,0)} }
     #send-btn { flex: 1; padding: 14px; font-size: 1rem; }
+
+    /* ── SCRIPT PANEL ── */
+    .script-panel {
+      border-left: 1px solid var(--border); overflow-y: auto; padding: 16px;
+      display: flex; flex-direction: column; gap: 10px; background: var(--surface);
+    }
+    .phase-block {
+      border-radius: 10px; border: 1px solid var(--border);
+      background: var(--surface2); overflow: hidden; transition: all 0.3s;
+    }
+    .phase-block.active {
+      border-color: var(--accent2); background: rgba(0,212,170,0.06);
+      box-shadow: 0 0 0 1px rgba(0,212,170,0.2);
+    }
+    .phase-header {
+      padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+      cursor: pointer; user-select: none;
+    }
+    .phase-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      background: var(--border); transition: all 0.3s;
+    }
+    .phase-block.active .phase-dot { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+    .phase-block.done .phase-dot { background: var(--green); }
+    .phase-name {
+      font-size: 0.82rem; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: 1px; transition: color 0.3s;
+    }
+    .phase-block.active .phase-name { color: var(--accent2); }
+    .phase-block.done .phase-name { color: var(--green); }
+    .phase-lines {
+      padding: 0 14px 12px; display: none; flex-direction: column; gap: 8px;
+    }
+    .phase-block.active .phase-lines { display: flex; }
+    .script-line {
+      background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.2);
+      border-radius: 8px; padding: 9px 12px; font-size: 0.84rem; line-height: 1.6;
+      color: var(--text); direction: ltr; text-align: left; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .script-line:hover { background: rgba(108,99,255,0.18); border-color: var(--accent); }
+    .script-line.highlight {
+      background: rgba(0,212,170,0.12); border-color: var(--accent2); color: #fff;
+    }
+    .script-line-label {
+      font-size: 0.72rem; color: var(--text2); margin-bottom: 2px;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .copy-hint { font-size: 0.7rem; color: var(--text2); text-align: center; padding: 4px 0; }
 
     /* ── COACH ── */
     .coach-panel {
@@ -259,6 +311,13 @@
   </div>
 
   <div class="columns">
+    <!-- ══ SCRIPT PANEL ══ -->
+    <div class="script-panel" id="script-panel">
+      <div class="panel-title">السكريبت</div>
+      <div class="copy-hint">اضغط على أي جملة لنسخها</div>
+      <div id="phase-blocks"></div>
+    </div>
+
     <div class="chat-col">
       <div class="messages" id="messages"></div>
       <div class="mic-area">
@@ -336,6 +395,214 @@ const SCRIPT = `
    - التوقيت → أعد التأطير، اكتشف الاعتراض الحقيقي
    - إذا توقفت → الضمان (استرداد كامل 15 يوم)
 `;
+
+// ══════════════════════════════════════════
+//  SCRIPT PHASES DATA
+// ══════════════════════════════════════════
+const SCRIPT_PHASES = [
+  {
+    id: "opening",
+    label: "1. المقدمة",
+    stage: "opening",
+    lines: [
+      { label: "افتح", text: "هلا [الاسم]، كيف الحال؟ وين تتصل من؟" },
+      { label: "أطّر", text: "تمام. عارف ما عندنا وقت كثير، خليني أسألك بعض الأسئلة عن وضعك وين تبي توصل، وإذا حسيت إننا مناسبين أعرض عليك كيف نشتغل. يناسبك؟" },
+    ],
+  },
+  {
+    id: "discovery_motivation",
+    label: "2أ. الدافع",
+    stage: "discovery",
+    lines: [
+      { label: "افتح الاستكشاف", text: "زين، ايش اللي خلاك تحجز هالمكالمة أصلًا؟" },
+      { label: "عمّق", text: "لما تقول [X]، قصدك ايش بالضبط؟" },
+    ],
+  },
+  {
+    id: "discovery_situation",
+    label: "2ب. الوضع الحالي",
+    stage: "discovery",
+    lines: [
+      { label: "شغله", text: "شو تسوي الحين بالضبط؟ وش طبيعة شغلك؟" },
+      { label: "استخدامه", text: "وكيف تستخدم الذكاء الاصطناعي أو الأتمتة الحين لو استخدمتها؟" },
+      { label: "مستواه", text: "مرتاح مع التقنية بشكل عام؟" },
+    ],
+  },
+  {
+    id: "discovery_pain",
+    label: "2ج. الألم",
+    stage: "discovery",
+    lines: [
+      { label: "التحدي", text: "وش أكبر تحدي تواجهه الحين بالموضوع هذا؟" },
+      { label: "ليش لسه؟", text: "ليش ما حليته لحد الآن؟" },
+      { label: "جرّبت؟", text: "ايش جربت قبل؟" },
+      { label: "كم صار؟", text: "كم صار له هالموضوع معك؟" },
+    ],
+  },
+  {
+    id: "discovery_desire",
+    label: "2د. الهدف",
+    stage: "discovery",
+    lines: [
+      { label: "الهدف", text: "وش هدفك خلال 12 شهر في هذا الموضوع؟" },
+      { label: "الدافع", text: "ايش اللي يدفعك تحقق [الهدف]؟" },
+      { label: "التأثير", text: "لو حققت [الهدف]، كيف يأثر على حياتك الثانية؟" },
+    ],
+  },
+  {
+    id: "discovery_cost",
+    label: "2هـ. تكلفة التأخير",
+    stage: "discovery",
+    lines: [
+      { label: "الأثر الحالي", text: "كيف أثّر عليك إنك لسه ما حليت [المشكلة]؟" },
+      { label: "فلاش فورورد", text: "لو مشينا 6 أشهر للأمام وما تغير شيء، هذا شيء تبي تتجنبه؟" },
+      { label: "كلفته", text: "وش يكلفك هذا من وقت أو طاقة أو فلوس؟" },
+      { label: "الالتزام", text: "من 1 لـ10، كيف ملتزم إنك تحل هذا؟" },
+    ],
+  },
+  {
+    id: "transition",
+    label: "3. الانتقال",
+    stage: "discovery",
+    lines: [
+      { label: "لخّص", text: "زين. أحس إن عندي فهم واضح لوضعك. قبل ما نكمل، في شيء ثاني أحتاج أعرفه عنك؟" },
+      { label: "ثقة", text: "تمام [الاسم]، بناءً على كل اللي قلته، أنا واثق نقدر نساعدك لأن [السبب]. تبي أشرح لك كيف نشتغل؟" },
+    ],
+  },
+  {
+    id: "pitch",
+    label: "4. العرض",
+    stage: "discovery",
+    lines: [
+      { label: "أعمدة", text: "هو نظام من 3 خطوات يأخذك من [الوضع الحالي] إلى [النتيجة] في [المدة]. تكتب معي 1، 2، 3؟" },
+      { label: "عمود 1", text: "العمود الأول: الأساس. نبني معك فهم واضح وهدف محدد بدل ما تكون ضايع بين الأدوات." },
+      { label: "عمود 2", text: "العمود الثاني: المهارة. تبني أول workflow حقيقي يشتغل بدلك على مهمة محددة عندك." },
+      { label: "عمود 3", text: "العمود الثالث: المجتمع. تنضم لنادي من 30 سعودي يتعلمون معك كل أسبوع." },
+      { label: "سؤال", text: "ايش اللي يلفت انتباهك أكثر من هذا؟" },
+    ],
+  },
+  {
+    id: "commitment",
+    label: "5. الالتزام",
+    stage: "closing",
+    lines: [
+      { label: "مقياس", text: "من 1 لـ10 — 10 تقول وين الرابط أشترك الحين، 1 تقول ابيك تنهي المكالمة — وين أنت؟" },
+      { label: "ليش مو 1؟", text: "زين، ليش ما قلت 1؟" },
+      { label: "وش ينقصه؟", text: "وش اللي يخليها 10؟" },
+    ],
+  },
+  {
+    id: "investment",
+    label: "6. السعر",
+    stage: "closing",
+    lines: [
+      { label: "قدّم", text: "الاستثمار هو 2000 دولار دفعة واحدة." },
+      { label: "اصمت", text: "[ اصمت — لا تضيف شيء، انتظر رده ]" },
+    ],
+  },
+  {
+    id: "objections",
+    label: "7. الاعتراضات",
+    stage: "objection",
+    lines: [
+      { label: "اعزل", text: "غير موضوع الفلوس، في شيء ثاني يوقفك؟" },
+      { label: "السعر", text: "لو الفلوس كانت موجودة الحين، كنت تشترك؟" },
+      { label: "أفكر فيه", text: "القرارات ما تحتاج وقت، تحتاج معلومات. وأنا المصدر الوحيد للمعلومات عن البرنامج. ايش اللي يوقفك تنضم اليوم؟" },
+      { label: "الضمان", text: "عندنا ضمان: في 15 يوم تبني workflow يشتغل بدلك، وإلا نرد فلوسك كاملة + قهوة عربية عليّ." },
+      { label: "خطة دفع", text: "ما نقدر نقسّمها على دفعتين؟" },
+    ],
+  },
+];
+
+let scriptState = {
+  currentPhaseId: "opening",
+  donePhaseIds: new Set(),
+  highlightedLine: null,
+};
+
+function buildScriptPanel() {
+  const container = document.getElementById("phase-blocks");
+  container.innerHTML = "";
+  SCRIPT_PHASES.forEach(phase => {
+    const block = document.createElement("div");
+    block.className = "phase-block" + (phase.id === scriptState.currentPhaseId ? " active" : "") + (scriptState.donePhaseIds.has(phase.id) ? " done" : "");
+    block.id = "phase-" + phase.id;
+
+    const header = document.createElement("div");
+    header.className = "phase-header";
+    header.innerHTML = `<div class="phase-dot"></div><div class="phase-name">${phase.label}</div>`;
+    header.addEventListener("click", () => setActivePhase(phase.id));
+
+    const linesDiv = document.createElement("div");
+    linesDiv.className = "phase-lines";
+    phase.lines.forEach((line, idx) => {
+      const lineEl = document.createElement("div");
+      lineEl.className = "script-line";
+      lineEl.id = `line-${phase.id}-${idx}`;
+      lineEl.innerHTML = `<div class="script-line-label">${line.label}</div>${line.text}`;
+      lineEl.addEventListener("click", () => {
+        navigator.clipboard?.writeText(line.text).catch(() => {});
+        // flash highlight
+        document.querySelectorAll(".script-line").forEach(l => l.classList.remove("highlight"));
+        lineEl.classList.add("highlight");
+        setTimeout(() => lineEl.classList.remove("highlight"), 1200);
+      });
+      linesDiv.appendChild(lineEl);
+    });
+
+    block.appendChild(header);
+    block.appendChild(linesDiv);
+    container.appendChild(block);
+  });
+}
+
+function setActivePhase(phaseId) {
+  scriptState.currentPhaseId = phaseId;
+  SCRIPT_PHASES.forEach(p => {
+    const block = document.getElementById("phase-" + p.id);
+    if (!block) return;
+    block.classList.remove("active", "done");
+    if (p.id === phaseId) block.classList.add("active");
+    else if (scriptState.donePhaseIds.has(p.id)) block.classList.add("done");
+  });
+  // scroll active into view
+  const active = document.getElementById("phase-" + phaseId);
+  if (active) active.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// called after each AI response — advance phase based on stage + script_adherence
+function advanceScriptFromEval(stage, adherence, repText) {
+  const current = SCRIPT_PHASES.find(p => p.id === scriptState.currentPhaseId);
+  if (!current) return;
+
+  // map stage → phase sequence
+  const stageToPhases = {
+    opening: ["opening"],
+    discovery: ["discovery_motivation","discovery_situation","discovery_pain","discovery_desire","discovery_cost","transition","pitch"],
+    objection: ["objections"],
+    closing: ["commitment","investment","objections"],
+  };
+
+  // auto-detect phase from rep's text keywords
+  const text = (repText || "").toLowerCase();
+  let nextPhaseId = null;
+
+  if (stage === "discovery" && current.id === "opening") nextPhaseId = "discovery_motivation";
+  else if (stage === "discovery" && current.id === "discovery_motivation" && (text.includes("شغل") || text.includes("شو تسوي") || text.includes("وضع"))) nextPhaseId = "discovery_situation";
+  else if (stage === "discovery" && current.id === "discovery_situation" && (text.includes("تحدي") || text.includes("مشكل") || text.includes("صعوبة"))) nextPhaseId = "discovery_pain";
+  else if (stage === "discovery" && current.id === "discovery_pain" && (text.includes("هدف") || text.includes("تبي") || text.includes("12 شهر") || text.includes("سنة"))) nextPhaseId = "discovery_desire";
+  else if (stage === "discovery" && current.id === "discovery_desire" && (text.includes("6 أشهر") || text.includes("ما تغير") || text.includes("كلف") || text.includes("يكلف"))) nextPhaseId = "discovery_cost";
+  else if (stage === "discovery" && current.id === "discovery_cost" && (text.includes("واثق") || text.includes("نساعد") || text.includes("أشرح") || text.includes("عرض"))) nextPhaseId = "transition";
+  else if (stage === "discovery" && current.id === "transition" && (text.includes("عمود") || text.includes("3 خطوات") || text.includes("نظام") || text.includes("مرحلة"))) nextPhaseId = "pitch";
+  else if (stage === "closing" && (current.id === "pitch" || current.id === "transition")) nextPhaseId = "commitment";
+  else if (stage === "closing" && current.id === "commitment" && (text.includes("2000") || text.includes("استثمار") || text.includes("سعر"))) nextPhaseId = "investment";
+  else if (stage === "objection") nextPhaseId = "objections";
+
+  if (nextPhaseId && nextPhaseId !== scriptState.currentPhaseId) {
+    scriptState.donePhaseIds.add(scriptState.currentPhaseId);
+    setActivePhase(nextPhaseId);
+  }
+}
 
 // ══════════════════════════════════════════
 //  PROSPECT PROFILES
@@ -635,7 +902,10 @@ async function sendMessage() {
       speak(parsed.prospect_reply);
     }
     if (parsed.stage) updateStage(parsed.stage);
-    if (parsed.eval) renderEval(parsed.eval);
+    if (parsed.eval) {
+      renderEval(parsed.eval);
+      advanceScriptFromEval(parsed.stage, parsed.eval.script_adherence, text);
+    }
     if (parsed.session_over && parsed.debrief) {
       state.sessionOver = true;
       setTimeout(() => showDebrief(parsed.debrief), 1500);
@@ -705,6 +975,7 @@ function resetApp() {
   document.getElementById('messages').innerHTML = '';
   document.getElementById('coach-content').innerHTML = '<div class="empty-coach">ابدأ الجلسة وتكلم مع العميل<br>وسيظهر هنا التقييم</div>';
   document.getElementById('prospect-info').innerHTML = '';
+  document.getElementById('phase-blocks').innerHTML = '';
   clearTranscript();
   document.getElementById('end-session-btn').disabled = false;
   updateStage('opening'); updateTurn();
@@ -721,6 +992,11 @@ async function startSession() {
   document.getElementById('setup-screen').style.display = 'none';
   const main = document.getElementById('main-screen');
   main.style.display = 'flex'; main.style.flexDirection = 'column';
+
+  // reset script state
+  scriptState.currentPhaseId = "opening";
+  scriptState.donePhaseIds = new Set();
+  buildScriptPanel();
 
   // show prospect name + info card
   const profile = PROSPECT_PROFILES[state.profileIndex];
