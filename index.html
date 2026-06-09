@@ -700,40 +700,67 @@ function getProspectReply(repText, phaseId){
 }
 
 // ═══════════════════════════════════════════════════
-//  EVAL LOGIC
+//  EVAL LOGIC — accumulates per phase, not per send
 // ═══════════════════════════════════════════════════
+
+// Buffer: all rep text sent in this phase so far
+// Resets when phase changes
+let S_phaseBuffer = "";
+let S_lastEvalPhase = "";
+
 function evalRepMessage(repText){
   const phase = PHASES[S.phaseIdx];
-  const score = scorePhrase(repText, phase);
-  const hits = detectHits(repText, phase);
 
-  // accumulate scores
-  const key = phase.scoreKey;
-  S.scores[key] = Math.round((S.scores[key] * S.scoreCounts[key] + score) / (S.scoreCounts[key] + 1));
-  S.scoreCounts[key]++;
+  // accumulate text for this phase
+  if(S_lastEvalPhase !== phase.id){
+    S_phaseBuffer = "";
+    S_lastEvalPhase = phase.id;
+  }
+  S_phaseBuffer += " " + repText;
+
+  // score against accumulated buffer
+  const score = scorePhrase(S_phaseBuffer, phase);
+  const hits = detectHits(S_phaseBuffer, phase);
 
   // mark hit lines
   hits.forEach(idx => S.hitLines.add(`${phase.id}-${idx}`));
 
-  // what worked / missed
+  // only count score once per phase (update, don't average again)
+  const key = phase.scoreKey;
+  if(S.scoreCounts[key] === 0){
+    S.scores[key] = score;
+    S.scoreCounts[key] = 1;
+  } else {
+    S.scores[key] = score; // replace with latest accumulated score
+  }
+
+  // what worked / missed based on accumulated buffer
   const hitLabels = hits.map(i => phase.lines[i].tag);
+  const allHit = hits.length >= phase.lines.length;
   const missedLabels = phase.lines.filter((_, i) => !hits.includes(i)).map(l => l.tag);
 
+  // decide if prospect should reply this turn
+  // Prospect replies when: score >= 30 OR this is a question (ends with ?) OR 2+ sends in same phase
+  const isQuestion = repText.trim().endsWith("?") || repText.trim().endsWith("؟");
+  const sendsInPhase = S_phaseBuffer.trim().split(/[.!؟?]/).filter(s => s.trim().length > 3).length;
+  const prospectShouldReply = score >= 30 || isQuestion || sendsInPhase >= 2;
+
   // auto advance phase?
-  const detectedPhase = detectPhaseFromText(repText);
+  const detectedPhase = detectPhaseFromText(S_phaseBuffer);
   let advanced = false;
   if(detectedPhase && PHASE_ORDER.indexOf(detectedPhase) > S.phaseIdx){
     S.donePhases.add(phase.id);
     S.phaseIdx = PHASE_ORDER.indexOf(detectedPhase);
+    S_phaseBuffer = "";
     advanced = true;
-  } else if(score >= 40 && S.phaseIdx < PHASES.length - 1){
-    // if rep covered enough of current phase, nudge forward
+  } else if(score >= 50 && S.phaseIdx < PHASES.length - 1){
     S.donePhases.add(phase.id);
     S.phaseIdx = Math.min(S.phaseIdx + 1, PHASES.length - 1);
+    S_phaseBuffer = "";
     advanced = true;
   }
 
-  return { score, hitLabels, missedLabels, advanced, newPhase: PHASES[S.phaseIdx] };
+  return { score, hitLabels, missedLabels, advanced, newPhase: PHASES[S.phaseIdx], prospectShouldReply };
 }
 
 // ═══════════════════════════════════════════════════
@@ -952,19 +979,32 @@ function sendMessage(){
   clearInput();
   S.turn++;
 
-  // evaluate
   const evalResult = evalRepMessage(text);
-  addEval(evalResult);
   refreshScriptPanel();
   updateScoreBars();
 
-  // prospect reply
-  const phaseId = PHASES[S.phaseIdx].id;
-  const reply = getProspectReply(text, phaseId);
-  setTimeout(() => {
-    addMsg("prospect", reply);
-    speak(reply);
-  }, 400);
+  if(evalResult.prospectShouldReply || evalResult.advanced){
+    // show eval summary then prospect reply
+    addEval(evalResult);
+    const phaseId = PHASES[S.phaseIdx].id;
+    const reply = getProspectReply(text, phaseId);
+    setTimeout(() => {
+      addMsg("prospect", reply);
+      speak(reply);
+    }, 350);
+  } else {
+    // rep is still building up the same phase — show a subtle "keep going" indicator
+    const c = document.getElementById("messages");
+    const hint = document.createElement("div");
+    hint.style.cssText = "font-size:0.72rem;color:var(--text2);text-align:center;padding:2px 0;opacity:0.6;";
+    hint.textContent = "↩ العميل ينتظر…";
+    hint.id = "wait-hint";
+    // replace previous wait hint if exists
+    const prev = document.getElementById("wait-hint");
+    if(prev) prev.remove();
+    c.appendChild(hint);
+    c.scrollTop = c.scrollHeight;
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -1018,6 +1058,7 @@ function resetApp(){
   S.scores={opening:0,discovery:0,pitch:0,closing:0,objections:0};
   S.scoreCounts={opening:0,discovery:0,pitch:0,closing:0,objections:0};
   S.hitLines=new Set(); S.donePhases=new Set();
+  S_phaseBuffer=""; S_lastEvalPhase="";
   document.getElementById("messages").innerHTML="";
   clearInput();
   document.getElementById("end-btn").disabled=false;
